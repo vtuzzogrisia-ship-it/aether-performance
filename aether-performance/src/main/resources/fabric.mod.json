@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "aether-performance",
+  "version": "${version}",
+  "name": "Aether Performance",
+  "description": "Ottimizzazioni leggere e sicure: culling di entità, block entity e particelle, preset di prestazioni e overlay diagnostico.",
+  "authors": ["Aether Performance Team"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "main": ["com.aether.performance.AetherPerformance"]
+  },
+  "mixins": ["aether-performance.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21"
+  }
+}
