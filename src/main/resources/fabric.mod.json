@@ -8,11 +8,13 @@
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "main": ["com.aether.performance.AetherPerformance"]
+    "main": ["com.aether.performance.AetherPerformance"],
+    "client": ["com.aether.performance.AetherPerformanceClient"]
   },
   "mixins": ["aether-performance.mixins.json"],
   "depends": {
     "fabricloader": ">=0.16.0",
+    "fabric-api": "*",
     "minecraft": "~1.21.11",
     "java": ">=21"
   }

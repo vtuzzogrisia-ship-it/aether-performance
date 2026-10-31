@@ -45,6 +45,11 @@ public class ModSettings {
         } catch (IOException | JsonParseException e) {
             AetherPerformance.LOGGER.warn("Config non leggibile, uso i valori predefiniti: {}", e.toString());
         }
+        applyAndSave();
+    }
+
+    /** Controlla i valori, applica il preset, aggiorna i valori usati dal gioco e salva il file. */
+    public void applyAndSave() {
         sanitize();
         applyPreset();
         RenderingConfig.apply(this);
