@@ -71,6 +71,17 @@ public class ModSettings {
         applyAndSave();
     }
 
+    /** Copia indipendente delle impostazioni (serve per "Annulla modifiche"). */
+    public ModSettings copy() {
+        return GSON.fromJson(GSON.toJson(this), ModSettings.class);
+    }
+
+    /** Ripristina i valori da una copia fatta con {@link #copy()}. */
+    public void restore(ModSettings o) {
+        copyFrom(o);
+        applyAndSave();
+    }
+
     public void save() {
         Path path = configPath();
         try {

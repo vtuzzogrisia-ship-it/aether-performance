@@ -43,6 +43,13 @@ public class PerformanceMonitor {
 
     private volatile double avgFps;
     private volatile double low1Fps;
+    private volatile double frameMsAvg;
+    private volatile long usedMb;
+    private volatile long maxMb;
+    private volatile double gcPct;
+    private volatile long culledEntities;
+    private volatile long culledBlockEntities;
+    private volatile long culledParticles;
 
     private int fpsColor = GREEN;
     private String lineTitle = "Aether Performance";
@@ -61,6 +68,49 @@ public class PerformanceMonitor {
     /** Media degli FPS sull'1% dei frame più lenti. */
     public double low1Fps() {
         return low1Fps;
+    }
+
+    public double frameMsAvg() {
+        return frameMsAvg;
+    }
+
+    public long usedMb() {
+        return usedMb;
+    }
+
+    public long maxMb() {
+        return maxMb;
+    }
+
+    /** Percentuale di tempo passata nel garbage collector nell'ultimo intervallo. */
+    public double gcPercent() {
+        return gcPct;
+    }
+
+    public long culledEntities() {
+        return culledEntities;
+    }
+
+    public long culledBlockEntities() {
+        return culledBlockEntities;
+    }
+
+    public long culledParticles() {
+        return culledParticles;
+    }
+
+    /** Evita un frame time gigante dopo che la misura è rimasta ferma (es. schermata chiusa). */
+    public void resync() {
+        lastFrame = System.nanoTime();
+    }
+
+    /** Copia gli ultimi frame time (ms) in ordine cronologico; restituisce quanti ne ha scritti. */
+    public int copyHistory(double[] out) {
+        int n = Math.min(count, out.length);
+        for (int i = 0; i < n; i++) {
+            out[i] = frameTimes[(index - n + i + WINDOW * 2) % WINDOW];
+        }
+        return n;
     }
 
     /** Da chiamare una volta per frame. */
@@ -118,6 +168,14 @@ public class PerformanceMonitor {
         long culledEntities = (long) (CullingStats.ENTITIES.sumThenReset() / seconds);
         long culledBlockEntities = (long) (CullingStats.BLOCK_ENTITIES.sumThenReset() / seconds);
         long culledParticles = (long) (CullingStats.PARTICLES.sumThenReset() / seconds);
+
+        this.frameMsAvg = avgMs;
+        this.usedMb = used;
+        this.maxMb = max;
+        this.gcPct = gcPercent;
+        this.culledEntities = culledEntities;
+        this.culledBlockEntities = culledBlockEntities;
+        this.culledParticles = culledParticles;
 
         ModSettings s = AetherPerformance.settings();
         String mode = s.mode.name();

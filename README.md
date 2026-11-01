@@ -6,6 +6,15 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 - **K**: apre la schermata impostazioni (tasto cambiabile in Opzioni > Comandi > Varie).
 - **J**: mostra/nasconde l'overlay diagnostico.
 
+### Schermata impostazioni
+Barra laterale con 4 schede e il selettore del profilo in basso a sinistra:
+- **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync (opzioni di Minecraft).
+- **Grafica**: illuminazione fluida, particelle, ombre delle entita (opzioni di Minecraft).
+- **Prestazioni**: culling di entita / block entity / particelle, distanze (profilo Personalizzato) e FPS obiettivo (profilo Auto).
+- **Diagnostica**: FPS, frame time, RAM, oggetti tagliati al secondo e grafico dei frame in tempo reale.
+
+Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla** (torna a com'era all'apertura o all'ultimo Applica), **Applica modifiche** (salva, comprese le opzioni di Minecraft).
+
 ## Funzioni
 - **Culling entita**: non disegna le entita oltre una certa distanza (giocatori, boss, entita con nome e passeggeri/veicoli sono sempre esclusi).
 - **Culling block entity**: non disegna casse, cartelli, banner ecc. oltre la distanza impostata.
