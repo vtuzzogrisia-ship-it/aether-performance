@@ -1,5 +1,6 @@
 package com.aether.performance.mixins;
 
+import com.aether.performance.diagnostics.CullingStats;
 import com.aether.performance.rendering.RenderingConfig;
 import net.minecraft.client.render.Frustum;
 import net.minecraft.client.render.entity.EntityRenderManager;
@@ -32,6 +33,7 @@ public class EntityRenderDispatcherMixin {
         if (aether$isCritical(entity)) {
             return;
         }
+        CullingStats.ENTITIES.increment();
         cir.setReturnValue(false);
     }
 

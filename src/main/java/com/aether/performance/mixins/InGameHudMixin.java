@@ -16,13 +16,14 @@ public class InGameHudMixin {
 
     @Inject(method = "render", at = @At("TAIL"), require = 0)
     private void aether$renderOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (!RenderingConfig.overlay) {
-            return;
-        }
-        if (MinecraftClient.getInstance().options.hudHidden) {
+        // La misura dei frame serve sia all'overlay sia alla modalità AUTO
+        if (!RenderingConfig.overlay && !RenderingConfig.auto) {
             return;
         }
         AetherPerformance.monitor().update();
-        AetherPerformance.monitor().renderOverlay(context);
+
+        if (RenderingConfig.overlay && !MinecraftClient.getInstance().options.hudHidden) {
+            AetherPerformance.monitor().renderOverlay(context);
+        }
     }
 }

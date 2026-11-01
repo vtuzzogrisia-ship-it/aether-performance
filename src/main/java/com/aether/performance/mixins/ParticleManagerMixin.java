@@ -1,5 +1,6 @@
 package com.aether.performance.mixins;
 
+import com.aether.performance.diagnostics.CullingStats;
 import com.aether.performance.rendering.RenderingConfig;
 import com.aether.performance.utils.CameraUtil;
 import net.minecraft.client.particle.Particle;
@@ -30,13 +31,15 @@ public class ParticleManagerMixin {
         double maxSq = RenderingConfig.particleDistanceSq;
 
         if (distSq > maxSq) {
+            CullingStats.PARTICLES.increment();
             cir.setReturnValue(null);
             return;
         }
 
-        // Nella seconda metà della distanza mostra solo 1 particella su N
+        // Oltre un quarto della distanza (metà in blocchi) mostra solo 1 particella su N
         int thinning = RenderingConfig.particleThinning;
         if (thinning > 1 && distSq > maxSq * 0.25 && (++aether$counter % thinning) != 0) {
+            CullingStats.PARTICLES.increment();
             cir.setReturnValue(null);
         }
     }

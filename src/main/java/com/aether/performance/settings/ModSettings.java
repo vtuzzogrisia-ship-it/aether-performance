@@ -14,20 +14,28 @@ import java.nio.file.Path;
 public class ModSettings {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public enum PerformanceMode { BALANCED, PERFORMANCE, EXTREME, CUSTOM }
+    /**
+     * BALANCED/PERFORMANCE/EXTREME: valori fissi. AUTO: parte dai valori di BALANCED e li
+     * restringe o allarga da sola per mantenere {@link #targetFps}. CUSTOM: usi i tuoi numeri.
+     */
+    public enum PerformanceMode { BALANCED, PERFORMANCE, EXTREME, AUTO, CUSTOM }
 
     public PerformanceMode mode = PerformanceMode.BALANCED;
     public boolean beCulling = true;
     public boolean entityCulling = true;
     public boolean particleThrottling = true;
     public boolean showOverlay = false;
+    public boolean overlayGraph = true;
 
     // Usati dai preset; in modalità CUSTOM valgono i tuoi numeri
     public int beCullingDistance = 64;
     public int entityCullingDistance = 128;
     public int particleDistance = 48;
-    /** 1 = nessuna riduzione; N = oltre metà distanza viene mostrata 1 particella su N. */
+    /** 1 = nessuna riduzione; N = oltre un quarto della distanza viene mostrata 1 particella su N. */
     public int particleThinning = 1;
+
+    /** FPS che la modalità AUTO cerca di mantenere. */
+    public int targetFps = 60;
 
     private static Path configPath() {
         return FabricLoader.getInstance().getConfigDir().resolve("aether_performance.json");
@@ -56,6 +64,13 @@ public class ModSettings {
         save();
     }
 
+    /** Riporta tutto ai valori iniziali. */
+    public void resetToDefaults() {
+        copyFrom(new ModSettings());
+        RenderingConfig.autoScale = 1.0;
+        applyAndSave();
+    }
+
     public void save() {
         Path path = configPath();
         try {
@@ -72,10 +87,12 @@ public class ModSettings {
         this.entityCulling = o.entityCulling;
         this.particleThrottling = o.particleThrottling;
         this.showOverlay = o.showOverlay;
+        this.overlayGraph = o.overlayGraph;
         this.beCullingDistance = o.beCullingDistance;
         this.entityCullingDistance = o.entityCullingDistance;
         this.particleDistance = o.particleDistance;
         this.particleThinning = o.particleThinning;
+        this.targetFps = o.targetFps;
     }
 
     private void sanitize() {
@@ -86,12 +103,13 @@ public class ModSettings {
         entityCullingDistance = clamp(entityCullingDistance, 16, 512);
         particleDistance = clamp(particleDistance, 8, 128);
         particleThinning = clamp(particleThinning, 1, 8);
+        targetFps = clamp(targetFps, 20, 360);
     }
 
     /** Sovrascrive le distanze in base al preset scelto (tranne CUSTOM). */
     private void applyPreset() {
         switch (mode) {
-            case BALANCED -> setValues(64, 128, 48, 1);
+            case BALANCED, AUTO -> setValues(64, 128, 48, 1);
             case PERFORMANCE -> setValues(48, 96, 32, 2);
             case EXTREME -> setValues(32, 64, 24, 3);
             case CUSTOM -> { }

@@ -1,31 +1,38 @@
 # Aether Performance (Fabric, Minecraft 1.21.11)
 
-Mod client-side di ottimizzazione leggera e sicura.
+Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e **Fabric API**.
+
+## Come si usa
+- **K**: apre la schermata impostazioni (tasto cambiabile in Opzioni > Comandi > Varie).
+- **J**: mostra/nasconde l'overlay diagnostico.
 
 ## Funzioni
-- **Culling entità**: non disegna le entità oltre una certa distanza (giocatori, boss, entità con nome e passeggeri/veicoli sono sempre esclusi dal culling).
+- **Culling entita**: non disegna le entita oltre una certa distanza (giocatori, boss, entita con nome e passeggeri/veicoli sono sempre esclusi).
 - **Culling block entity**: non disegna casse, cartelli, banner ecc. oltre la distanza impostata.
 - **Throttling particelle**: scarta le particelle lontane e dirada quelle a media distanza.
-- **Preset**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `CUSTOM` (in CUSTOM valgono i tuoi numeri).
-- **Overlay diagnostico** (`showOverlay`): FPS medi, 1% low, frame time, heap e peso del GC.
+- **Modalita**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `AUTO`, `CUSTOM`.
+  - `AUTO` parte dai valori di BALANCED e li restringe/allarga da sola per mantenere gli FPS obiettivo (minimo 35% delle distanze).
+  - `CUSTOM` usa i valori dei cursori.
+- **Overlay**: FPS a colori, 1% low, frame time, RAM, GC, grafico dei frame e contatore di quanto viene tagliato al secondo (E = entita, B = block entity, P = particelle).
 
 ## Configurazione
-`config/aether_performance.json`
+`config/aether_performance.json` (si modifica anche dal menu in gioco)
 
 | Chiave | Significato |
 |---|---|
-| `mode` | BALANCED / PERFORMANCE / EXTREME / CUSTOM |
+| `mode` | BALANCED / PERFORMANCE / EXTREME / AUTO / CUSTOM |
 | `beCulling`, `entityCulling`, `particleThrottling` | attiva/disattiva ogni funzione |
-| `showOverlay` | mostra l'overlay (default `false`) |
+| `showOverlay`, `overlayGraph` | overlay e grafico dei frame |
+| `targetFps` | FPS obiettivo della modalita AUTO |
 | `beCullingDistance`, `entityCullingDistance`, `particleDistance`, `particleThinning` | valori usati solo con `CUSTOM` |
 
-Preset (blocchi): BALANCED 64/128/48, PERFORMANCE 48/96/32, EXTREME 32/64/24 (block entity / entità / particelle).
+Preset (blocchi): BALANCED 64/128/48, PERFORMANCE 48/96/32, EXTREME 32/64/24 (block entity / entita / particelle).
 
 ## Compilare
-1. Genera il wrapper una volta: `gradle wrapper --gradle-version 8.14`
-2. Controlla versioni di `yarn_mappings`, `loader_version` e Loom su https://fabricmc.net/develop e aggiorna `gradle.properties` / `build.gradle`.
-3. `./gradlew build` -> il jar è in `build/libs/`.
+La build parte da sola su GitHub Actions a ogni push: il jar e' tra gli artefatti della build (`aether-performance-<versione>.jar`, non quello `-sources`).
 
-## Cosa è stato rimosso rispetto alla versione originale
+In locale: `gradle build` (Gradle 9.2, Java 21) -> `build/libs/`.
+
+## Rimosso rispetto alla versione originale
 - `VertexBufferPool` + `SectionBuilderMixin`: condividevano il buffer del `Tessellator` tra thread diversi (crash/corruzione) e il metodo `beginBufferBuilding` non esiste.
 - `FrustumMixin`: non faceva nulla.

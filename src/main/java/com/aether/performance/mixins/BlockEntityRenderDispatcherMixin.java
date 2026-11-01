@@ -1,5 +1,6 @@
 package com.aether.performance.mixins;
 
+import com.aether.performance.diagnostics.CullingStats;
 import com.aether.performance.rendering.RenderingConfig;
 import com.aether.performance.utils.CameraUtil;
 import net.minecraft.block.entity.BlockEntity;
@@ -27,6 +28,7 @@ public class BlockEntityRenderDispatcherMixin {
         BlockPos pos = blockEntity.getPos();
         double distSq = CameraUtil.distanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
         if (distSq > RenderingConfig.blockEntityDistanceSq) {
+            CullingStats.BLOCK_ENTITIES.increment();
             cir.setReturnValue(null);
         }
     }

@@ -13,11 +13,16 @@ public final class RenderingConfig {
     public static volatile boolean entityCulling = true;
     public static volatile boolean particleThrottling = true;
     public static volatile boolean overlay = false;
+    public static volatile boolean overlayGraph = true;
+    public static volatile boolean auto = false;
+
+    /** Fattore di riduzione scelto dalla modalità AUTO (1.0 = distanze piene, 0.35 = minimo). */
+    public static volatile double autoScale = 1.0;
 
     // Distanze al quadrato (evitano la radice quadrata nei test)
-    public static volatile double blockEntityDistanceSq = 64.0 * 64.0;
-    public static volatile double entityDistanceSq = 128.0 * 128.0;
-    public static volatile double particleDistanceSq = 48.0 * 48.0;
+    public static volatile double blockEntityDistanceSq = square(64);
+    public static volatile double entityDistanceSq = square(128);
+    public static volatile double particleDistanceSq = square(48);
     public static volatile int particleThinning = 1;
 
     private RenderingConfig() {
@@ -28,27 +33,30 @@ public final class RenderingConfig {
         entityCulling = s.entityCulling;
         particleThrottling = s.particleThrottling;
         overlay = s.showOverlay;
+        overlayGraph = s.overlayGraph;
+        auto = s.mode == ModSettings.PerformanceMode.AUTO;
 
-        blockEntityDistanceSq = square(s.beCullingDistance);
-        entityDistanceSq = square(s.entityCullingDistance);
-        particleDistanceSq = square(s.particleDistance);
+        double k = auto ? autoScale : 1.0;
+        blockEntityDistanceSq = square(Math.max(16.0, s.beCullingDistance * k));
+        entityDistanceSq = square(Math.max(32.0, s.entityCullingDistance * k));
+        particleDistanceSq = square(Math.max(8.0, s.particleDistance * k));
         particleThinning = Math.max(1, s.particleThinning);
     }
 
     /** Segnala nel log la presenza di mod di rendering note. Nessuna funzione viene disattivata. */
     public static void detectConflicts() {
         FabricLoader loader = FabricLoader.getInstance();
-        for (String id : new String[] {"sodium", "embeddium", "iris", "lithium", "entityculling"}) {
+        for (String id : new String[] {"sodium", "embeddium", "iris", "lithium", "entityculling", "badoptimizations"}) {
             if (loader.isModLoaded(id)) {
                 AetherPerformance.LOGGER.info("Rilevata mod compatibile/affine: {}", id);
             }
         }
-        if (loader.isModLoaded("entityculling")) {
-            AetherPerformance.LOGGER.info("Con Entity Culling installata puoi disattivare 'entityCulling' nel config.");
+        if (loader.isModLoaded("entityculling") || loader.isModLoaded("badoptimizations")) {
+            AetherPerformance.LOGGER.info("Hai già mod che tagliano il rendering: puoi disattivare 'entityCulling' se noti artefatti.");
         }
     }
 
-    private static double square(int v) {
-        return (double) v * v;
+    private static double square(double v) {
+        return v * v;
     }
 }
