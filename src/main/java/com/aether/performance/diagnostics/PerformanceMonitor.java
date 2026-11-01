@@ -6,6 +6,7 @@ import com.aether.performance.settings.ModSettings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.PlayerListEntry;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
@@ -50,6 +51,7 @@ public class PerformanceMonitor {
     private volatile long culledEntities;
     private volatile long culledBlockEntities;
     private volatile long culledParticles;
+    private volatile int pingMs = -1;
 
     private int fpsColor = GREEN;
     private String lineTitle = "Aether Performance";
@@ -58,6 +60,8 @@ public class PerformanceMonitor {
     private String lineHeap = "";
     private String lineGc = "";
     private String lineCull = "";
+    private String linePing = "";
+    private int pingColor = GREY;
     private double heapRatio;
 
     /** FPS medi sugli ultimi frame (0 finché non ci sono dati). */
@@ -97,6 +101,11 @@ public class PerformanceMonitor {
 
     public long culledParticles() {
         return culledParticles;
+    }
+
+    /** Ping verso il server in ms, oppure -1 in giocatore singolo / se non disponibile. */
+    public int pingMs() {
+        return pingMs;
     }
 
     /** Evita un frame time gigante dopo che la misura è rimasta ferma (es. schermata chiusa). */
@@ -177,8 +186,10 @@ public class PerformanceMonitor {
         this.culledBlockEntities = culledBlockEntities;
         this.culledParticles = culledParticles;
 
+        this.pingMs = readPing();
+
         ModSettings s = AetherPerformance.settings();
-        String mode = s.mode.name();
+        String mode = s.effectiveMode().name();
         if (RenderingConfig.auto) {
             mode += String.format(" x%.2f", RenderingConfig.autoScale);
         }
@@ -189,6 +200,22 @@ public class PerformanceMonitor {
         lineHeap = String.format("RAM %d / %d MB", used, max);
         lineGc = String.format("GC %.1f%%", gcPercent);
         lineCull = String.format("Tagliati/s  E %d   B %d   P %d", culledEntities, culledBlockEntities, culledParticles);
+        if (pingMs >= 0) {
+            linePing = "Ping " + pingMs + " ms";
+            pingColor = pingMs < 60 ? GREEN : (pingMs < 120 ? YELLOW : RED);
+        } else {
+            linePing = "";
+        }
+    }
+
+    /** Latenza del giocatore locale dalla lista giocatori del server (-1 se non c'è). */
+    private static int readPing() {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player == null || mc.getNetworkHandler() == null || mc.isInSingleplayer()) {
+            return -1;
+        }
+        PlayerListEntry entry = mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
+        return entry == null ? -1 : Math.max(0, entry.getLatency());
     }
 
     public void renderOverlay(DrawContext context) {
@@ -196,18 +223,25 @@ public class PerformanceMonitor {
         TextRenderer tr = client.textRenderer;
 
         boolean graph = RenderingConfig.overlayGraph;
+        boolean ping = RenderingConfig.showPing && !linePing.isEmpty();
         int x = 4;
         int y = 4;
         int w = 196;
-        int h = graph ? 112 : 80;
+        int h = graph ? 102 : 72;
 
-        // Pannello e barra colorata a sinistra
-        context.fill(x, y, x + w, y + h, 0xB00B0F14);
-        context.fill(x, y, x + 2, y + h, ACCENT);
+        // Ombra, pannello sfumato e barra colorata a sinistra
+        context.fill(x + 1, y + 2, x + w + 1, y + h + 2, 0x40000000);
+        context.fillGradient(x, y, x + w, y + h, 0xC0111722, 0xC00A0E14);
+        context.fillGradient(x, y, x + 2, y + h, ACCENT, 0xFF3B82F6);
+        context.fill(x + 2, y, x + w, y + 1, 0x30FFFFFF);
 
         int tx = x + 8;
         context.drawTextWithShadow(tr, lineTitle, tx, y + 4, ACCENT);
         context.drawTextWithShadow(tr, lineFps, tx, y + 16, fpsColor);
+        if (ping) {
+            int pw = tr.getWidth(linePing);
+            context.drawTextWithShadow(tr, linePing, x + w - 6 - pw, y + 16, pingColor);
+        }
         context.drawTextWithShadow(tr, lineLow, tx, y + 27, GREY);
         context.drawTextWithShadow(tr, lineHeap, tx, y + 38, GREY);
         context.drawTextWithShadow(tr, lineGc, tx + 110, y + 38, GREY);

@@ -4,6 +4,7 @@ import com.aether.performance.diagnostics.AutoTuner;
 import com.aether.performance.gui.AetherSettingsScreen;
 import com.aether.performance.settings.ModSettings;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
@@ -44,5 +45,8 @@ public class AetherPerformanceClient implements ClientModInitializer {
             }
             AutoTuner.tick(client);
         });
+
+        // Rimette la distanza di rendering dell'utente se la modalità AUTO l'aveva abbassata
+        ClientLifecycleEvents.CLIENT_STOPPING.register(AutoTuner::shutdown);
     }
 }

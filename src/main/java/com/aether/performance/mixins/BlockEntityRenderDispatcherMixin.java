@@ -5,10 +5,11 @@ import com.aether.performance.rendering.RenderingConfig;
 import com.aether.performance.utils.CameraUtil;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.block.entity.BlockEntityRenderManager;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -16,12 +17,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockEntityRenderDispatcherMixin {
 
     /**
-     * Il manager ottiene il renderer con get(); se restituisce null il block entity
-     * non viene disegnato (il metodo è @Nullable nel gioco).
+     * getRenderState viene chiamato solo quando il block entity sta per essere disegnato
+     * (thread di rendering). Restituire null significa "non disegnare".
+     * Non si interviene su get(): lo usa anche il thread che costruisce i chunk, e
+     * tagliare lì farebbe sparire i block entity anche quando ci si avvicina.
      */
-    @Inject(method = "get", at = @At("HEAD"), cancellable = true, require = 0)
-    private void aether$cullFarBlockEntities(BlockEntity blockEntity,
-                                             CallbackInfoReturnable<BlockEntityRenderer<?, ?>> cir) {
+    @Inject(method = "getRenderState", at = @At("HEAD"), cancellable = true, require = 0)
+    private void aether$cullFarBlockEntities(BlockEntity blockEntity, float tickProgress,
+                                             @Coerce Object crumblingOverlay,
+                                             CallbackInfoReturnable<BlockEntityRenderState> cir) {
         if (!RenderingConfig.blockEntityCulling || blockEntity == null) {
             return;
         }
