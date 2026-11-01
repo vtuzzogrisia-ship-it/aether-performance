@@ -5,6 +5,7 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 ## Come si usa
 - **K**: apre la schermata impostazioni (tasto cambiabile in Opzioni > Comandi > Varie).
 - **J**: mostra/nasconde l'overlay diagnostico.
+- **Opzioni > Impostazioni video**: in fondo alla lista compare anche il pulsante **"Aether Performance..."**, come fanno Sodium e Iris con le loro impostazioni: apre la stessa schermata del tasto K.
 
 ### Schermata impostazioni
 Barra laterale con 6 schede e il selettore del profilo in basso a sinistra:

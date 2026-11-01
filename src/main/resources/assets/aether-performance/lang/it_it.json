@@ -1,4 +1,6 @@
 {
   "key.aether-performance.open_settings": "Apri impostazioni Aether Performance",
-  "key.aether-performance.toggle_overlay": "Mostra/nascondi overlay Aether Performance"
+  "key.aether-performance.toggle_overlay": "Mostra/nascondi overlay Aether Performance",
+  "options.aether-performance.open_settings": "Aether Performance...",
+  "options.aether-performance.open_settings.tooltip": "Apre le impostazioni di Aether Performance (come premere K)"
 }
