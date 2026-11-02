@@ -5,7 +5,6 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 ## Come si usa
 - **K**: apre la schermata impostazioni (tasto cambiabile in Opzioni > Comandi > Varie).
 - **J**: mostra/nasconde l'overlay diagnostico.
-- **Opzioni > Impostazioni video**: in fondo alla lista compare anche il pulsante **"Aether Performance..."**, come fanno Sodium e Iris con le loro impostazioni: apre la stessa schermata del tasto K.
 
 ### Schermata impostazioni
 Barra laterale con 6 schede e il selettore del profilo in basso a sinistra:
@@ -52,7 +51,7 @@ La build parte da sola su GitHub Actions a ogni push: il jar e' tra gli artefatt
 In locale: `gradle build` (Gradle 9.2, Java 21) -> `build/libs/`.
 
 ## Sicurezza anti-crash
-Ogni funzione che tocca il rendering del gioco (culling di entità/block entity/particelle, overlay, modalità Auto, pulsante nelle Impostazioni video, schermata impostazioni) gira dentro un controllo che intercetta eventuali errori: se qualcosa va storto, quella singola funzione si disattiva da sola per il resto della sessione (si vede un avviso in `logs/latest.log`) invece di far crashare Minecraft. Le altre funzioni continuano a funzionare normalmente.
+Ogni funzione che tocca il rendering del gioco (culling di entità/block entity/particelle, overlay, modalità Auto, schermata impostazioni) gira dentro un controllo che intercetta eventuali errori: se qualcosa va storto, quella singola funzione si disattiva da sola per il resto della sessione (si vede un avviso in `logs/latest.log`) invece di far crashare Minecraft. Le altre funzioni continuano a funzionare normalmente.
 
 ## Rimosso rispetto alla versione originale
 - `VertexBufferPool` + `SectionBuilderMixin`: condividevano il buffer del `Tessellator` tra thread diversi (crash/corruzione) e il metodo `beginBufferBuilding` non esiste.
