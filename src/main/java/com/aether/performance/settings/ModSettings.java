@@ -4,7 +4,6 @@ import com.aether.performance.AetherPerformance;
 import com.aether.performance.rendering.RenderingConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -65,7 +64,7 @@ public class ModSettings {
                     copyFrom(loaded);
                 }
             }
-        } catch (IOException | JsonParseException | RuntimeException e) {
+        } catch (IOException | RuntimeException e) {
             AetherPerformance.LOGGER.warn("Config non leggibile, uso i valori predefiniti: {}", e.toString());
         }
         try {
