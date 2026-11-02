@@ -130,6 +130,19 @@ public class AetherSettingsScreen extends Screen {
 
     @Override
     protected void init() {
+        try {
+            init0();
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.error(
+                    "[Aether Performance] La schermata impostazioni non si è potuta aprire correttamente "
+                            + "ed è stata chiusa per evitare un crash.", t);
+            ctls.clear();
+            labels.clear();
+            this.close();
+        }
+    }
+
+    private void init0() {
         ctls.clear();
         labels.clear();
         active = null;
@@ -682,6 +695,17 @@ public class AetherSettingsScreen extends Screen {
 
     @Override
     public void render(DrawContext c, int mouseX, int mouseY, float delta) {
+        try {
+            render0(c, mouseX, mouseY, delta);
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.error(
+                    "[Aether Performance] La schermata impostazioni ha generato un errore ed è stata chiusa "
+                            + "per evitare un crash. Riprova; se succede di nuovo scrivi a chi ti ha dato la mod.", t);
+            this.close();
+        }
+    }
+
+    private void render0(DrawContext c, int mouseX, int mouseY, float delta) {
         long nowN = System.nanoTime();
         frameDt = lastNanos == 0 ? 0.016f : Math.min(0.1f, (nowN - lastNanos) / 1_000_000_000f);
         lastNanos = nowN;
@@ -859,40 +883,58 @@ public class AetherSettingsScreen extends Screen {
 
     @Override
     public boolean mouseClicked(Click click, boolean doubled) {
-        if (click.button() != 0) {
-            return false;
-        }
-        double mx = click.x();
-        double my = click.y();
-        for (int i = ctls.size() - 1; i >= 0; i--) {
-            Ctl ct = ctls.get(i);
-            if (ct.contains(mx, my) && ct.on()) {
-                if (ct.click(mx, my)) {
-                    active = ct;
-                }
-                return true; // la lista può essere cambiata dall'azione: esci subito
+        try {
+            if (click.button() != 0) {
+                return false;
             }
+            double mx = click.x();
+            double my = click.y();
+            for (int i = ctls.size() - 1; i >= 0; i--) {
+                Ctl ct = ctls.get(i);
+                if (ct.contains(mx, my) && ct.on()) {
+                    if (ct.click(mx, my)) {
+                        active = ct;
+                    }
+                    return true; // la lista può essere cambiata dall'azione: esci subito
+                }
+            }
+            return false;
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.error("[Aether Performance] Errore nel clic della schermata impostazioni.", t);
+            active = null;
+            return true;
         }
-        return false;
     }
 
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY) {
-        if (active != null) {
-            active.drag(click.x(), click.y());
+        try {
+            if (active != null) {
+                active.drag(click.x(), click.y());
+                return true;
+            }
+            return false;
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.error("[Aether Performance] Errore nel trascinamento della schermata impostazioni.", t);
+            active = null;
             return true;
         }
-        return false;
     }
 
     @Override
     public boolean mouseReleased(Click click) {
-        if (active != null) {
-            active.release();
+        try {
+            if (active != null) {
+                active.release();
+                active = null;
+                return true;
+            }
+            return false;
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.error("[Aether Performance] Errore nel rilascio del mouse nella schermata impostazioni.", t);
             active = null;
             return true;
         }
-        return false;
     }
 
     @Override

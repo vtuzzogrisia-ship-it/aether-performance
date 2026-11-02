@@ -3,6 +3,7 @@ package com.aether.performance.diagnostics;
 import com.aether.performance.AetherPerformance;
 import com.aether.performance.rendering.RenderingConfig;
 import com.aether.performance.settings.ModSettings;
+import com.aether.performance.utils.FailSafe;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.SimpleOption;
 
@@ -30,6 +31,17 @@ public final class AutoTuner {
     }
 
     public static void tick(MinecraftClient client) {
+        if (FailSafe.isDisabled("auto-tuner")) {
+            return;
+        }
+        try {
+            tick0(client);
+        } catch (Throwable t) {
+            FailSafe.guard("auto-tuner", t);
+        }
+    }
+
+    private static void tick0(MinecraftClient client) {
         ModSettings s = AetherPerformance.settings();
 
         if (client.world != lastWorld) {
@@ -118,8 +130,12 @@ public final class AutoTuner {
 
     /** Alla chiusura del gioco rimette la distanza di rendering scelta dall'utente. */
     public static void shutdown(MinecraftClient client) {
-        if (baseView >= 0) {
-            restoreView(client);
+        try {
+            if (baseView >= 0) {
+                restoreView(client);
+            }
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.warn("[Aether Performance] Impossibile ripristinare la distanza di rendering alla chiusura.", t);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.aether.performance.mixins;
 import com.aether.performance.diagnostics.CullingStats;
 import com.aether.performance.rendering.RenderingConfig;
 import com.aether.performance.utils.CameraUtil;
+import com.aether.performance.utils.FailSafe;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.block.entity.BlockEntityRenderManager;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
@@ -26,14 +27,18 @@ public class BlockEntityRenderDispatcherMixin {
     private void aether$cullFarBlockEntities(BlockEntity blockEntity, float tickProgress,
                                              @Coerce Object crumblingOverlay,
                                              CallbackInfoReturnable<BlockEntityRenderState> cir) {
-        if (!RenderingConfig.blockEntityCulling || blockEntity == null) {
+        if (!RenderingConfig.blockEntityCulling || blockEntity == null || FailSafe.isDisabled("culling.block-entity")) {
             return;
         }
-        BlockPos pos = blockEntity.getPos();
-        double distSq = CameraUtil.distanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
-        if (distSq > RenderingConfig.blockEntityDistanceSq) {
-            CullingStats.BLOCK_ENTITIES.increment();
-            cir.setReturnValue(null);
+        try {
+            BlockPos pos = blockEntity.getPos();
+            double distSq = CameraUtil.distanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+            if (distSq > RenderingConfig.blockEntityDistanceSq) {
+                CullingStats.BLOCK_ENTITIES.increment();
+                cir.setReturnValue(null);
+            }
+        } catch (Throwable t) {
+            FailSafe.guard("culling.block-entity", t);
         }
     }
 }

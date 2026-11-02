@@ -1,6 +1,7 @@
 package com.aether.performance.mixins;
 
 import com.aether.performance.gui.AetherSettingsScreen;
+import com.aether.performance.utils.FailSafe;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.VideoOptionsScreen;
@@ -30,17 +31,27 @@ public abstract class VideoOptionsScreenMixin {
 
     @Inject(method = "addOptions", at = @At("TAIL"), require = 0)
     private void aether$addSettingsButton(CallbackInfo ci) {
-        if (body == null) {
+        if (body == null || FailSafe.isDisabled("gui.video-options-button")) {
             return;
         }
-        SimpleOption<Boolean> button = new SimpleOption<>(
-                "options.aether-performance.open_settings",
-                SimpleOption.constantTooltip(Text.translatable("options.aether-performance.open_settings.tooltip")),
-                (optionText, value) -> Text.empty(),
-                SimpleOption.BOOLEAN,
-                false,
-                value -> MinecraftClient.getInstance().setScreen(new AetherSettingsScreen((Screen) (Object) this))
-        );
-        body.addAll(new SimpleOption<?>[] { button });
+        try {
+            SimpleOption<Boolean> button = new SimpleOption<>(
+                    "options.aether-performance.open_settings",
+                    SimpleOption.constantTooltip(Text.translatable("options.aether-performance.open_settings.tooltip")),
+                    (optionText, value) -> Text.empty(),
+                    SimpleOption.BOOLEAN,
+                    false,
+                    value -> {
+                        try {
+                            MinecraftClient.getInstance().setScreen(new AetherSettingsScreen((Screen) (Object) this));
+                        } catch (Throwable t) {
+                            FailSafe.guard("gui.video-options-button", t);
+                        }
+                    }
+            );
+            body.addAll(new SimpleOption<?>[] { button });
+        } catch (Throwable t) {
+            FailSafe.guard("gui.video-options-button", t);
+        }
     }
 }

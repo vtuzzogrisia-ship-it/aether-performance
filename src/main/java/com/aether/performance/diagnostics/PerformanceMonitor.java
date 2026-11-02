@@ -3,6 +3,7 @@ package com.aether.performance.diagnostics;
 import com.aether.performance.AetherPerformance;
 import com.aether.performance.rendering.RenderingConfig;
 import com.aether.performance.settings.ModSettings;
+import com.aether.performance.utils.FailSafe;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -124,6 +125,17 @@ public class PerformanceMonitor {
 
     /** Da chiamare una volta per frame. */
     public void update() {
+        if (FailSafe.isDisabled("monitor.update")) {
+            return;
+        }
+        try {
+            update0();
+        } catch (Throwable t) {
+            FailSafe.guard("monitor.update", t);
+        }
+    }
+
+    private void update0() {
         long now = System.nanoTime();
         double ms = (now - lastFrame) / 1_000_000.0;
         lastFrame = now;
@@ -219,6 +231,17 @@ public class PerformanceMonitor {
     }
 
     public void renderOverlay(DrawContext context) {
+        if (FailSafe.isDisabled("monitor.overlay")) {
+            return;
+        }
+        try {
+            renderOverlay0(context);
+        } catch (Throwable t) {
+            FailSafe.guard("monitor.overlay", t);
+        }
+    }
+
+    private void renderOverlay0(DrawContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer tr = client.textRenderer;
 

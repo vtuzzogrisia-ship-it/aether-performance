@@ -65,10 +65,19 @@ public class ModSettings {
                     copyFrom(loaded);
                 }
             }
-        } catch (IOException | JsonParseException e) {
+        } catch (IOException | JsonParseException | RuntimeException e) {
             AetherPerformance.LOGGER.warn("Config non leggibile, uso i valori predefiniti: {}", e.toString());
         }
-        applyAndSave();
+        try {
+            applyAndSave();
+        } catch (RuntimeException e) {
+            AetherPerformance.LOGGER.warn("Config non valido, ripristino i valori predefiniti: {}", e.toString());
+            copyFrom(new ModSettings());
+            sanitize();
+            applyPreset();
+            RenderingConfig.apply(this);
+            save();
+        }
     }
 
     /** Controlla i valori, applica il preset, aggiorna i valori usati dal gioco e salva il file. */

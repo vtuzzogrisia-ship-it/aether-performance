@@ -51,6 +51,9 @@ La build parte da sola su GitHub Actions a ogni push: il jar e' tra gli artefatt
 
 In locale: `gradle build` (Gradle 9.2, Java 21) -> `build/libs/`.
 
+## Sicurezza anti-crash
+Ogni funzione che tocca il rendering del gioco (culling di entità/block entity/particelle, overlay, modalità Auto, pulsante nelle Impostazioni video, schermata impostazioni) gira dentro un controllo che intercetta eventuali errori: se qualcosa va storto, quella singola funzione si disattiva da sola per il resto della sessione (si vede un avviso in `logs/latest.log`) invece di far crashare Minecraft. Le altre funzioni continuano a funzionare normalmente.
+
 ## Rimosso rispetto alla versione originale
 - `VertexBufferPool` + `SectionBuilderMixin`: condividevano il buffer del `Tessellator` tra thread diversi (crash/corruzione) e il metodo `beginBufferBuilding` non esiste.
 - `FrustumMixin`: non faceva nulla.

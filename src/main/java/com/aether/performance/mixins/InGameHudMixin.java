@@ -2,6 +2,7 @@ package com.aether.performance.mixins;
 
 import com.aether.performance.AetherPerformance;
 import com.aether.performance.rendering.RenderingConfig;
+import com.aether.performance.utils.FailSafe;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -16,14 +17,21 @@ public class InGameHudMixin {
 
     @Inject(method = "render", at = @At("TAIL"), require = 0)
     private void aether$renderOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        // La misura dei frame serve sia all'overlay sia alla modalità AUTO
-        if (!RenderingConfig.overlay && !RenderingConfig.auto) {
+        if (FailSafe.isDisabled("overlay")) {
             return;
         }
-        AetherPerformance.monitor().update();
+        try {
+            // La misura dei frame serve sia all'overlay sia alla modalità AUTO
+            if (!RenderingConfig.overlay && !RenderingConfig.auto) {
+                return;
+            }
+            AetherPerformance.monitor().update();
 
-        if (RenderingConfig.overlay && !MinecraftClient.getInstance().options.hudHidden) {
-            AetherPerformance.monitor().renderOverlay(context);
+            if (RenderingConfig.overlay && !MinecraftClient.getInstance().options.hudHidden) {
+                AetherPerformance.monitor().renderOverlay(context);
+            }
+        } catch (Throwable t) {
+            FailSafe.guard("overlay", t);
         }
     }
 }
