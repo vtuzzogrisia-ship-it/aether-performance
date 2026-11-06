@@ -8,9 +8,9 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 
 ### Schermata impostazioni
 Barra laterale con 6 schede e il selettore del profilo in basso a sinistra:
-- **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync + 4 preset grafici rapidi (Qualita / Bilanciato / Prestazioni / Massimi FPS).
+- **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync + 4 preset rapidi (Qualita / Bilanciato / Prestazioni / Massimi FPS) che ora cambiano **in un solo clic sia la grafica di Minecraft sia la modalita di ottimizzazione della mod** (es. "Massimi FPS" passa anche a culling Estremo e grafica Veloce).
 - **Grafica**: illuminazione fluida, ombre delle entita, particelle, nuvole, fusione dei biomi, distanza entita (tutte opzioni di Minecraft).
-- **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica (solo profilo Auto).
+- **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica e distanza di simulazione dinamica (solo profilo Auto).
 - **Server**: stato del collegamento (nome server, ping), profilo dedicato ai server multigiocatore, culling dei giocatori lontani, ping nell'overlay.
 - **Distanze**: valori precisi usati dal profilo Personalizzato (block entity, entita, particelle, diradamento, oggetti/XP, FPS obiettivo).
 - **Diagnostica**: FPS, frame time, RAM/GC, ping, oggetti tagliati al secondo e grafico dei frame in tempo reale.
@@ -25,6 +25,8 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 - **Culling giocatori (server)**: puoi nascondere i giocatori lontani sui server affollati; chi cavalchi o che ti cavalca non sparisce mai.
 - **Profilo server**: puoi usare un profilo diverso (es. Prestazioni) solo quando sei connesso a un server, lasciando quello normale in giocatore singolo.
 - **Distanza di rendering dinamica**: in modalita Auto puo abbassare e rialzare anche i chunk visibili (minimo 8) quando le sole distanze di culling non bastano; torna al valore scelto da te quando esci o chiudi il gioco.
+- **Distanza di simulazione dinamica**: come sopra ma per la distanza di simulazione (minimo 4): alleggerisce anche mob, coltivazioni e il carico sul server, non solo la grafica; torna al valore scelto da te quando esci o chiudi il gioco.
+- **Preset rapidi allineati**: i 4 pulsanti preset in Generale ora impostano anche la modalita della mod (Bilanciato/Prestazioni/Estremo), cosi grafica e culling vanno sempre d'accordo con un solo clic.
 - **Modalita**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `AUTO`, `CUSTOM`.
   - `AUTO` parte dai valori di BALANCED e li restringe/allarga da sola per mantenere gli FPS obiettivo (minimo 35% delle distanze), con una pausa di qualche secondo dopo essere entrati nel mondo e nessuna modifica quando la finestra e in background.
   - `CUSTOM` usa i valori dei cursori.
@@ -40,7 +42,7 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 | `beCulling`, `entityCulling`, `particleThrottling`, `smallEntityCulling` | attiva/disattiva ogni funzione di culling |
 | `distantPlayerCulling`, `playerCullingDistance` | culling dei giocatori lontani sui server |
 | `showOverlay`, `overlayGraph`, `showPing` | overlay, grafico dei frame e ping |
-| `targetFps`, `dynamicViewDistance` | obiettivo e distanza di rendering dinamica della modalita AUTO |
+| `targetFps`, `dynamicViewDistance`, `dynamicSimulationDistance` | obiettivo e distanze dinamiche (rendering/simulazione) della modalita AUTO |
 | `beCullingDistance`, `entityCullingDistance`, `particleDistance`, `particleThinning`, `smallEntityDistance` | valori usati solo con `CUSTOM` |
 
 Preset (blocchi: block entity / entita / particelle / diradamento / oggetti-XP): BALANCED 64/128/48/1/48, PERFORMANCE 48/96/32/2/32, EXTREME 32/64/24/3/24.

@@ -77,7 +77,7 @@ public class AetherSettingsScreen extends Screen {
     private record Label(String text, int x, int y, int w) { }
 
     private record VanillaSnap(int view, int sim, int fps, boolean vsync, boolean ao, boolean shadows,
-                               Object particles, Object clouds, int biome, double entityScale) { }
+                               Object particles, Object clouds, int biome, double entityScale, Object preset) { }
 
     private static Tab lastTab = Tab.GENERAL;
 
@@ -226,15 +226,15 @@ public class AetherSettingsScreen extends Screen {
                 () -> o.getEnableVsync().getValue(), v -> o.getEnableVsync().setValue(v))
                 .tip("Elimina lo strappo dell'immagine, ma può aggiungere ritardo"));
         y += 46;
-        labels.add(new Label("PRESET GRAFICI RAPIDI  -  cambiano distanze ed effetti di Minecraft in un clic", mainX, y, mainW));
+        labels.add(new Label("PRESET RAPIDI  -  un clic cambia sia la grafica di Minecraft sia le ottimizzazioni della mod", mainX, y, mainW));
         y += 13;
         int bw = (mainW - 3 * 5) / 4;
         String[] names = {"Qualità", "Bilanciato", "Prestazioni", "Massimi FPS"};
         String[] tips = {
                 "Grafica bella: 16 chunk, particelle complete, ombre e luce fluida",
                 "Compromesso: 12 chunk, particelle ridotte, nuvole veloci",
-                "Per PC modesti: 8 chunk, niente ombre né luce fluida",
-                "Il massimo degli FPS: 6 chunk, niente nuvole, particelle minime"
+                "Per PC modesti: 8 chunk, niente ombre né luce fluida, culling Prestazioni",
+                "Il massimo degli FPS: 6 chunk, grafica Veloce, niente nuvole, culling Estremo attivo subito"
         };
         for (int i = 0; i < 4; i++) {
             final int level = i;
@@ -296,6 +296,10 @@ public class AetherSettingsScreen extends Screen {
         ctls.add(new ToggleCard(mainX + hw + gap, y, hw, 32, "Distanza di rendering dinamica", "Solo in profilo Auto",
                 () -> s.dynamicViewDistance, v -> { s.dynamicViewDistance = v; commit(); })
                 .tip("In profilo Auto abbassa e rialza i chunk visibili (min. 8) per tenere gli FPS obiettivo"));
+        y += 36;
+        ctls.add(new ToggleCard(mainX, y, mainW, 32, "Distanza di simulazione dinamica", "Solo in profilo Auto - alleggerisce anche il mondo/server",
+                () -> s.dynamicSimulationDistance, v -> { s.dynamicSimulationDistance = v; commit(); })
+                .tip("In profilo Auto abbassa e rialza anche la distanza di simulazione (min. 4): meno lavoro per mob, coltivazioni e server"));
         y += 36;
         ctls.add(new BoostInfo(mainX, y, mainW, Math.min(40, contentBottom - y)));
     }
@@ -468,7 +472,7 @@ public class AetherSettingsScreen extends Screen {
         return new VanillaSnap(o.getViewDistance().getValue(), o.getSimulationDistance().getValue(),
                 o.getMaxFps().getValue(), o.getEnableVsync().getValue(), o.getAo().getValue(),
                 o.getEntityShadows().getValue(), o.getParticles().getValue(), o.getCloudRenderMode().getValue(),
-                o.getBiomeBlendRadius().getValue(), o.getEntityDistanceScaling().getValue());
+                o.getBiomeBlendRadius().getValue(), o.getEntityDistanceScaling().getValue(), o.getPreset().getValue());
     }
 
     private void restoreVanilla(VanillaSnap v) {
@@ -483,9 +487,15 @@ public class AetherSettingsScreen extends Screen {
         setRaw(o.getCloudRenderMode(), v.clouds());
         o.getBiomeBlendRadius().setValue(v.biome());
         o.getEntityDistanceScaling().setValue(v.entityScale());
+        setRaw(o.getPreset(), v.preset());
     }
 
-    /** Preset grafici rapidi: 0 Qualità, 1 Bilanciato, 2 Prestazioni, 3 Massimi FPS. */
+    /**
+     * Preset grafici rapidi: 0 Qualità, 1 Bilanciato, 2 Prestazioni, 3 Massimi FPS.
+     * Ogni preset allinea sia le opzioni grafiche vanilla sia la modalità di ottimizzazione
+     * della mod (culling di entità/block entity/particelle), cosi un solo clic basta per
+     * passare da "bello" a "più FPS possibili".
+     */
     private void quickGraphics(int level) {
         GameOptions o = opts();
         int[] view = {16, 12, 8, 6};
@@ -494,8 +504,13 @@ public class AetherSettingsScreen extends Screen {
         boolean[] ao = {true, true, false, false};
         boolean[] shadows = {true, true, false, false};
         String[] clouds = {"FANCY", "FAST", "FAST", "OFF"};
+        String[] graphicsPreset = {"FANCY", "FANCY", "FAST", "FAST"};
         int[] biome = {5, 3, 1, 0};
         double[] entity = {1.0, 1.0, 0.75, 0.5};
+        PerformanceMode[] modes = {
+                PerformanceMode.BALANCED, PerformanceMode.BALANCED,
+                PerformanceMode.PERFORMANCE, PerformanceMode.EXTREME
+        };
 
         o.getViewDistance().setValue(view[level]);
         o.getSimulationDistance().setValue(sim[level]);
@@ -503,10 +518,17 @@ public class AetherSettingsScreen extends Screen {
         o.getAo().setValue(ao[level]);
         o.getEntityShadows().setValue(shadows[level]);
         setByName(o.getCloudRenderMode(), clouds[level]);
+        setByName(o.getPreset(), graphicsPreset[level]);
         o.getBiomeBlendRadius().setValue(biome[level]);
         o.getEntityDistanceScaling().setValue(entity[level]);
+
+        // Allinea anche il "cervello" della mod: culling di entità/block entity/particelle
+        // alla stessa intensità del preset grafico, cosi le due cose vanno sempre d'accordo.
+        s.mode = modes[level];
+        commit();
+
         toast("Preset '" + new String[] {"Qualità", "Bilanciato", "Prestazioni", "Massimi FPS"}[level]
-                + "' pronto: premi Applica per salvarlo.");
+                + "' applicato: ottimizzazioni della mod già attive, premi Applica per salvare anche la grafica.");
     }
 
     @SuppressWarnings("unchecked")

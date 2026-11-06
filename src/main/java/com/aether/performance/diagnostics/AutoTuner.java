@@ -19,13 +19,17 @@ public final class AutoTuner {
     private static final int JOIN_GRACE_TICKS = 200;
     private static final double MIN_SCALE = 0.35;
     private static final int MIN_VIEW = 8;
+    private static final int MIN_SIM = 4;
 
     private static int ticks;
     private static int viewTicks;
+    private static int simTicks;
     private static int grace;
     private static Object lastWorld;
     /** Distanza di rendering scelta dall'utente; -1 = nessuna salvata. */
     private static int baseView = -1;
+    /** Distanza di simulazione scelta dall'utente; -1 = nessuna salvata. */
+    private static int baseSim = -1;
 
     private AutoTuner() {
     }
@@ -61,9 +65,13 @@ public final class AutoTuner {
 
         boolean auto = s.effectiveMode() == ModSettings.PerformanceMode.AUTO;
         boolean dynamicView = auto && s.dynamicViewDistance;
+        boolean dynamicSim = auto && s.dynamicSimulationDistance;
 
         if (!dynamicView && baseView >= 0) {
             restoreView(client);
+        }
+        if (!dynamicSim && baseSim >= 0) {
+            restoreSim(client);
         }
         if (!auto || client.world == null) {
             return;
@@ -98,6 +106,9 @@ public final class AutoTuner {
         if (dynamicView) {
             tuneViewDistance(client, s, fps);
         }
+        if (dynamicSim) {
+            tuneSimulationDistance(client, s, fps);
+        }
     }
 
     private static void tuneViewDistance(MinecraftClient client, ModSettings s, double fps) {
@@ -119,6 +130,34 @@ public final class AutoTuner {
         }
     }
 
+    private static void tuneSimulationDistance(MinecraftClient client, ModSettings s, double fps) {
+        SimpleOption<Integer> option = client.options.getSimulationDistance();
+        int current = option.getValue();
+        if (baseSim < 0 || current > baseSim) {
+            baseSim = current; // l'utente l'ha alzata a mano: diventa la nuova base
+        }
+        if (++simTicks < VIEW_INTERVAL_TICKS) {
+            return;
+        }
+        simTicks = 0;
+
+        double scale = RenderingConfig.autoScale;
+        if (fps < s.targetFps * 0.85 && scale <= 0.6 && current > MIN_SIM) {
+            option.setValue(current - 1);
+        } else if (fps > s.targetFps * 1.5 && scale >= 0.95 && current < baseSim) {
+            option.setValue(current + 1);
+        }
+    }
+
+    private static void restoreSim(MinecraftClient client) {
+        SimpleOption<Integer> option = client.options.getSimulationDistance();
+        if (option.getValue() != baseSim) {
+            option.setValue(baseSim);
+            client.options.write();
+        }
+        baseSim = -1;
+    }
+
     private static void restoreView(MinecraftClient client) {
         SimpleOption<Integer> option = client.options.getViewDistance();
         if (option.getValue() != baseView) {
@@ -133,6 +172,9 @@ public final class AutoTuner {
         try {
             if (baseView >= 0) {
                 restoreView(client);
+            }
+            if (baseSim >= 0) {
+                restoreSim(client);
             }
         } catch (Throwable t) {
             AetherPerformance.LOGGER.warn("[Aether Performance] Impossibile ripristinare la distanza di rendering alla chiusura.", t);

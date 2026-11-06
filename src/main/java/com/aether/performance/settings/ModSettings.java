@@ -42,6 +42,8 @@ public class ModSettings {
     public int targetFps = 60;
     /** In modalità AUTO abbassa (e rialza) anche la distanza di rendering se gli FPS restano bassi. */
     public boolean dynamicViewDistance = false;
+    /** In modalità AUTO abbassa (e rialza) anche la distanza di simulazione: meno lavoro per il server. */
+    public boolean dynamicSimulationDistance = false;
 
     // --- Server --------------------------------------------------------------------------
     /** Su un server multigiocatore usa {@link #serverMode} al posto di {@link #mode}. */
@@ -153,6 +155,7 @@ public class ModSettings {
         this.smallEntityDistance = o.smallEntityDistance;
         this.targetFps = o.targetFps;
         this.dynamicViewDistance = o.dynamicViewDistance;
+        this.dynamicSimulationDistance = o.dynamicSimulationDistance;
         this.useServerProfile = o.useServerProfile;
         this.serverMode = o.serverMode;
         this.distantPlayerCulling = o.distantPlayerCulling;
