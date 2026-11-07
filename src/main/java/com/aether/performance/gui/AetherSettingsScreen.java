@@ -297,9 +297,14 @@ public class AetherSettingsScreen extends Screen {
                 () -> s.dynamicViewDistance, v -> { s.dynamicViewDistance = v; commit(); })
                 .tip("In profilo Auto abbassa e rialza i chunk visibili (min. 8) per tenere gli FPS obiettivo"));
         y += 36;
-        ctls.add(new ToggleCard(mainX, y, mainW, 32, "Distanza di simulazione dinamica", "Solo in profilo Auto - alleggerisce anche il mondo/server",
+        ctls.add(new ToggleCard(mainX, y, hw, 32, "Distanza di simulazione dinamica", "Solo in profilo Auto",
                 () -> s.dynamicSimulationDistance, v -> { s.dynamicSimulationDistance = v; commit(); })
                 .tip("In profilo Auto abbassa e rialza anche la distanza di simulazione (min. 4): meno lavoro per mob, coltivazioni e server"));
+        ctls.add(new ToggleCard(mainX + hw + gap, y, hw, 32, "FPS ridotti se in background", "Risparmia risorse quando cambi finestra",
+                () -> s.idleFpsLimiter, v -> { s.idleFpsLimiter = v; commit(); })
+                .tip("Se minimizzi o passi ad un'altra finestra, abbassa il limite FPS a " + s.idleFps
+                        + " per non consumare CPU/GPU inutilmente. Torna normale appena riapri Minecraft. "
+                        + "Disattivala se registri lo schermo con un programma che cattura anche da finestra non attiva."));
         y += 36;
         ctls.add(new BoostInfo(mainX, y, mainW, Math.min(40, contentBottom - y)));
     }

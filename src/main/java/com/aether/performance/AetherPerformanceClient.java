@@ -1,6 +1,7 @@
 package com.aether.performance;
 
 import com.aether.performance.diagnostics.AutoTuner;
+import com.aether.performance.diagnostics.IdleFpsLimiter;
 import com.aether.performance.gui.AetherSettingsScreen;
 import com.aether.performance.settings.ModSettings;
 import net.fabricmc.api.ClientModInitializer;
@@ -44,9 +45,13 @@ public class AetherPerformanceClient implements ClientModInitializer {
                 s.applyAndSave();
             }
             AutoTuner.tick(client);
+            IdleFpsLimiter.tick(client);
         });
 
-        // Rimette la distanza di rendering dell'utente se la modalità AUTO l'aveva abbassata
-        ClientLifecycleEvents.CLIENT_STOPPING.register(AutoTuner::shutdown);
+        // Rimette la distanza di rendering e il limite FPS dell'utente se la mod li aveva abbassati
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            AutoTuner.shutdown(client);
+            IdleFpsLimiter.shutdown(client);
+        });
     }
 }

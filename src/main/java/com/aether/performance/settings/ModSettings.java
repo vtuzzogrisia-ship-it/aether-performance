@@ -44,6 +44,10 @@ public class ModSettings {
     public boolean dynamicViewDistance = false;
     /** In modalità AUTO abbassa (e rialza) anche la distanza di simulazione: meno lavoro per il server. */
     public boolean dynamicSimulationDistance = false;
+    /** Se la finestra non è in primo piano, abbassa il limite FPS per risparmiare CPU/GPU. */
+    public boolean idleFpsLimiter = false;
+    /** FPS usati quando la finestra non è in primo piano (vedi {@link #idleFpsLimiter}). */
+    public int idleFps = 15;
 
     // --- Server --------------------------------------------------------------------------
     /** Su un server multigiocatore usa {@link #serverMode} al posto di {@link #mode}. */
@@ -156,6 +160,8 @@ public class ModSettings {
         this.targetFps = o.targetFps;
         this.dynamicViewDistance = o.dynamicViewDistance;
         this.dynamicSimulationDistance = o.dynamicSimulationDistance;
+        this.idleFpsLimiter = o.idleFpsLimiter;
+        this.idleFps = o.idleFps;
         this.useServerProfile = o.useServerProfile;
         this.serverMode = o.serverMode;
         this.distantPlayerCulling = o.distantPlayerCulling;
@@ -176,6 +182,7 @@ public class ModSettings {
         smallEntityDistance = clamp(smallEntityDistance, 8, 128);
         playerCullingDistance = clamp(playerCullingDistance, 32, 256);
         targetFps = clamp(targetFps, 20, 360);
+        idleFps = clamp(idleFps, 5, 60);
     }
 
     /** Sovrascrive le distanze in base al preset scelto (tranne CUSTOM). */
