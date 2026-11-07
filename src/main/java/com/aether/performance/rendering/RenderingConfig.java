@@ -59,10 +59,17 @@ public final class RenderingConfig {
         playerDistanceSq = square(Math.max(48.0, s.playerCullingDistance * k));
     }
 
+    private static final String[] KNOWN_RENDER_MODS = {
+            "sodium", "embeddium", "iris", "lithium", "entityculling", "badoptimizations"
+    };
+    private static final String[] KNOWN_RENDER_NAMES = {
+            "Sodium", "Embeddium", "Iris", "Lithium", "EntityCulling", "BadOptimizations"
+    };
+
     /** Segnala nel log la presenza di mod di rendering note. Nessuna funzione viene disattivata. */
     public static void detectConflicts() {
         FabricLoader loader = FabricLoader.getInstance();
-        for (String id : new String[] {"sodium", "embeddium", "iris", "lithium", "entityculling", "badoptimizations"}) {
+        for (String id : KNOWN_RENDER_MODS) {
             if (loader.isModLoaded(id)) {
                 AetherPerformance.LOGGER.info("Rilevata mod compatibile/affine: {}", id);
             }
@@ -70,6 +77,27 @@ public final class RenderingConfig {
         if (loader.isModLoaded("entityculling") || loader.isModLoaded("badoptimizations")) {
             AetherPerformance.LOGGER.info("Hai già mod che tagliano il rendering: puoi disattivare 'entityCulling' se noti artefatti.");
         }
+    }
+
+    /**
+     * Testo pronto per la GUI con le mod di rendering note che sono installate insieme a questa,
+     * cosi chi gioca sa che convivono bene senza dover guardare i log.
+     */
+    public static String detectedModsText() {
+        FabricLoader loader = FabricLoader.getInstance();
+        StringBuilder found = new StringBuilder();
+        for (int i = 0; i < KNOWN_RENDER_MODS.length; i++) {
+            if (loader.isModLoaded(KNOWN_RENDER_MODS[i])) {
+                if (found.length() > 0) {
+                    found.append(", ");
+                }
+                found.append(KNOWN_RENDER_NAMES[i]);
+            }
+        }
+        if (found.length() == 0) {
+            return "Nessun'altra mod di rendering rilevata: funzioni di Aether Performance tutte attive.";
+        }
+        return "Mod compatibili rilevate: " + found + ". Vanno d'accordo con Aether Performance.";
     }
 
     private static double square(double v) {

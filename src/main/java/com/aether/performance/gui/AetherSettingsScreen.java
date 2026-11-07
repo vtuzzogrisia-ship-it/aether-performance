@@ -338,6 +338,8 @@ public class AetherSettingsScreen extends Screen {
         ctls.add(new ToggleCard(x2, y, hw, 28, "Overlay sullo schermo", null,
                 () -> s.showOverlay, v -> { s.showOverlay = v; commit(); })
                 .tip("FPS, RAM e ping sempre visibili (tasto J)"));
+        y += 34;
+        labels.add(new Label(RenderingConfig.detectedModsText(), mainX, y, mainW));
     }
 
     private void buildDistances() {

@@ -11,7 +11,7 @@ Barra laterale con 6 schede e il selettore del profilo in basso a sinistra:
 - **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync + 4 preset rapidi (Qualita / Bilanciato / Prestazioni / Massimi FPS) che ora cambiano **in un solo clic sia la grafica di Minecraft sia la modalita di ottimizzazione della mod** (es. "Massimi FPS" passa anche a culling Estremo e grafica Veloce).
 - **Grafica**: illuminazione fluida, ombre delle entita, particelle, nuvole, fusione dei biomi, distanza entita (tutte opzioni di Minecraft).
 - **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica e distanza di simulazione dinamica (solo profilo Auto), limite FPS ridotto quando la finestra e in background.
-- **Server**: stato del collegamento (nome server, ping), profilo dedicato ai server multigiocatore, culling dei giocatori lontani, ping nell'overlay.
+- **Server**: stato del collegamento (nome server, ping), profilo dedicato ai server multigiocatore, culling dei giocatori lontani, ping nell'overlay, quali mod di rendering compatibili (Sodium, Lithium...) sono rilevate.
 - **Distanze**: valori precisi usati dal profilo Personalizzato (block entity, entita, particelle, diradamento, oggetti/XP, FPS obiettivo).
 - **Diagnostica**: FPS, frame time, RAM/GC, ping, oggetti tagliati al secondo e grafico dei frame in tempo reale.
 
@@ -56,6 +56,8 @@ In locale: `gradle build` (Gradle 9.2, Java 21) -> `build/libs/`.
 
 ## Sicurezza anti-crash
 Ogni funzione che tocca il rendering del gioco (culling di entità/block entity/particelle, overlay, modalità Auto, schermata impostazioni) gira dentro un controllo che intercetta eventuali errori: se qualcosa va storto, quella singola funzione si disattiva da sola per il resto della sessione (si vede un avviso in `logs/latest.log`) invece di far crashare Minecraft. Le altre funzioni continuano a funzionare normalmente.
+
+- **Mod rilevate**: nella scheda Server la mod dice subito se ha trovato altre mod di rendering note (Sodium, Embeddium, Iris, Lithium, EntityCulling, BadOptimizations) e conferma che convivono bene, senza dover guardare i log.
 
 ## Rimosso rispetto alla versione originale
 - `VertexBufferPool` + `SectionBuilderMixin`: condividevano il buffer del `Tessellator` tra thread diversi (crash/corruzione) e il metodo `beginBufferBuilding` non esiste.
