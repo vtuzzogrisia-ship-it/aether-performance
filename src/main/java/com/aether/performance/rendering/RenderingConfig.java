@@ -22,6 +22,11 @@ public final class RenderingConfig {
     /** true mentre sei dentro a un mondo multigiocatore (aggiornato dal tick del client). */
     public static volatile boolean onServer = false;
 
+    /** true quando la modalità PvP è attiva e ha rilevato altri giocatori vicini (vedi {@link com.aether.performance.diagnostics.PvpMode}). */
+    public static volatile boolean pvpActive = false;
+    /** Quanto si stringono ulteriormente mob/particelle mentre {@link #pvpActive} è vero. */
+    private static final double PVP_TIGHTEN = 0.7;
+
     /** Fattore di riduzione scelto dalla modalità AUTO (1.0 = distanze piene, 0.35 = minimo). */
     public static volatile double autoScale = 1.0;
 
@@ -44,17 +49,23 @@ public final class RenderingConfig {
         entityCulling = s.entityCulling;
         particleThrottling = s.particleThrottling;
         smallEntityCulling = s.smallEntityCulling;
-        playerCulling = s.distantPlayerCulling;
+        // In modalità PvP i giocatori non vengono mai tagliati, qualunque sia questa impostazione.
+        playerCulling = s.distantPlayerCulling && !pvpActive;
         overlay = s.showOverlay;
         overlayGraph = s.overlayGraph;
         showPing = s.showPing;
         auto = eff == ModSettings.PerformanceMode.AUTO;
 
         double k = auto ? autoScale : 1.0;
+        if (pvpActive) {
+            // Libera un po' di budget frame su mob/particelle (mai sui giocatori) proprio
+            // quando serve di più: durante un combattimento con altri giocatori vicini.
+            k *= PVP_TIGHTEN;
+        }
         blockEntityDistanceSq = square(Math.max(16.0, d[0] * k));
         entityDistanceSq = square(Math.max(32.0, d[1] * k));
         particleDistanceSq = square(Math.max(8.0, d[2] * k));
-        particleThinning = Math.max(1, d[3]);
+        particleThinning = Math.max(1, pvpActive ? d[3] + 1 : d[3]);
         smallEntityDistanceSq = square(Math.max(8.0, d[4] * k));
         playerDistanceSq = square(Math.max(48.0, s.playerCullingDistance * k));
     }

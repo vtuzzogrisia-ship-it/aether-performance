@@ -2,6 +2,7 @@ package com.aether.performance;
 
 import com.aether.performance.diagnostics.AutoTuner;
 import com.aether.performance.diagnostics.IdleFpsLimiter;
+import com.aether.performance.diagnostics.PvpMode;
 import com.aether.performance.gui.AetherSettingsScreen;
 import com.aether.performance.settings.ModSettings;
 import net.fabricmc.api.ClientModInitializer;
@@ -46,6 +47,7 @@ public class AetherPerformanceClient implements ClientModInitializer {
             }
             AutoTuner.tick(client);
             IdleFpsLimiter.tick(client);
+            PvpMode.tick(client);
         });
 
         // Rimette la distanza di rendering e il limite FPS dell'utente se la mod li aveva abbassati

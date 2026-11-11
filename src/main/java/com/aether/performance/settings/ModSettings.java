@@ -50,6 +50,8 @@ public class ModSettings {
     public int idleFps = 15;
     /** In modalità AUTO, se gli FPS restano molto bassi spegne temporaneamente luce fluida/ombre/nuvole. */
     public boolean adaptiveGraphics = false;
+    /** Non taglia mai i giocatori vicini e stringe un po' di più mob/particelle quando sei in combattimento. */
+    public boolean pvpMode = false;
 
     // --- Server --------------------------------------------------------------------------
     /** Su un server multigiocatore usa {@link #serverMode} al posto di {@link #mode}. */
@@ -165,6 +167,7 @@ public class ModSettings {
         this.idleFpsLimiter = o.idleFpsLimiter;
         this.idleFps = o.idleFps;
         this.adaptiveGraphics = o.adaptiveGraphics;
+        this.pvpMode = o.pvpMode;
         this.useServerProfile = o.useServerProfile;
         this.serverMode = o.serverMode;
         this.distantPlayerCulling = o.distantPlayerCulling;

@@ -10,7 +10,7 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 Barra laterale con 6 schede e il selettore del profilo in basso a sinistra:
 - **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync + 4 preset rapidi (Qualita / Bilanciato / Prestazioni / Massimi FPS) che ora cambiano **in un solo clic sia la grafica di Minecraft sia la modalita di ottimizzazione della mod** (es. "Massimi FPS" passa anche a culling Estremo e grafica Veloce).
 - **Grafica**: illuminazione fluida, ombre delle entita, particelle, nuvole, fusione dei biomi, distanza entita (tutte opzioni di Minecraft).
-- **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica e distanza di simulazione dinamica (solo profilo Auto), limite FPS ridotto quando la finestra e in background.
+- **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica e distanza di simulazione dinamica (solo profilo Auto), limite FPS ridotto quando la finestra e in background, modalita PvP, animazioni ridotte.
 - **Server**: stato del collegamento (nome server, ping), profilo dedicato ai server multigiocatore, culling dei giocatori lontani, ping nell'overlay, quali mod di rendering compatibili (Sodium, Lithium...) sono rilevate.
 - **Distanze**: valori precisi usati dal profilo Personalizzato (block entity, entita, particelle, diradamento, oggetti/XP, FPS obiettivo).
 - **Diagnostica**: FPS, frame time, RAM/GC, ping, oggetti tagliati al secondo e grafico dei frame in tempo reale.
@@ -31,6 +31,8 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 - **Mod rilevate**: nella scheda Server la mod dice subito se ha trovato altre mod di rendering note (Sodium, Embeddium, Iris, Lithium, EntityCulling, BadOptimizations) e conferma che convivono bene, senza dover guardare i log.
 - **Livello mipmap** (scheda Grafica): opzione vanilla di Minecraft, abbassarla riduce il carico sulla scheda video. E compresa anche nei 4 preset rapidi.
 - **Grafica adattiva** (scheda Grafica, solo profilo Auto, disattivata di default): se dopo aver stretto le distanze al minimo gli FPS restano molto sotto l'obiettivo per qualche secondo filato, spegne temporaneamente luce fluida, ombre delle entita e nuvole, e le riaccende da sola appena recuperi FPS.
+- **Modalita PvP** (scheda Boost FPS, disattivata di default): quando rileva altri giocatori entro 24 blocchi, non li taglia mai dal rendering (anche con "Culling giocatori" attivo) e stringe un po' di piu mob e particelle lontane, per darti piu FPS proprio durante i combattimenti. Funziona con qualsiasi profilo, non solo Auto.
+- **Animazioni ridotte** (scheda Boost FPS): spegne l'oscillazione della camera mentre cammini e le animazioni di nausea/oscurita (opzioni vanilla). Meno calcoli e, in PvP, una mira piu stabile.
 - **Modalita**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `AUTO`, `CUSTOM`.
   - `AUTO` parte dai valori di BALANCED e li restringe/allarga da sola per mantenere gli FPS obiettivo (minimo 35% delle distanze), con una pausa di qualche secondo dopo essere entrati nel mondo e nessuna modifica quando la finestra e in background.
   - `CUSTOM` usa i valori dei cursori.
@@ -49,6 +51,7 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 | `targetFps`, `dynamicViewDistance`, `dynamicSimulationDistance` | obiettivo e distanze dinamiche (rendering/simulazione) della modalita AUTO |
 | `idleFpsLimiter`, `idleFps` | limite FPS ridotto quando la finestra non e in primo piano, e a quanto |
 | `adaptiveGraphics` | in modalita AUTO, spegne temporaneamente luce/ombre/nuvole se gli FPS restano molto bassi |
+| `pvpMode` | non taglia mai i giocatori vicini e stringe mob/particelle quando sei in combattimento |
 | `beCullingDistance`, `entityCullingDistance`, `particleDistance`, `particleThinning`, `smallEntityDistance` | valori usati solo con `CUSTOM` |
 
 Preset (blocchi: block entity / entita / particelle / diradamento / oggetti-XP): BALANCED 64/128/48/1/48, PERFORMANCE 48/96/32/2/32, EXTREME 32/64/24/3/24.

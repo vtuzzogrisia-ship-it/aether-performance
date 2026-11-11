@@ -78,7 +78,7 @@ public class AetherSettingsScreen extends Screen {
 
     private record VanillaSnap(int view, int sim, int fps, boolean vsync, boolean ao, boolean shadows,
                                Object particles, Object clouds, int biome, double entityScale, Object preset,
-                               int mipmap) { }
+                               int mipmap, boolean bobView, double screenEffectScale, double darknessEffectScale) { }
 
     private static Tab lastTab = Tab.GENERAL;
 
@@ -285,9 +285,11 @@ public class AetherSettingsScreen extends Screen {
     }
 
     private void buildBoost() {
+        GameOptions o = opts();
         int gap = 6;
         int cw = (mainW - 2 * gap) / 3;
         int hw = (mainW - gap) / 2;
+        int x2 = mainX + hw + gap;
         int y = contentTop;
         labels.add(new Label("COSA NON DISEGNARE QUANDO È LONTANO", mainX, y - 11, mainW));
         ctls.add(new ToggleCard(mainX, y, cw, 26, "Entità", null,
@@ -315,6 +317,19 @@ public class AetherSettingsScreen extends Screen {
                 .tip("Se minimizzi o passi ad un'altra finestra, abbassa il limite FPS a " + s.idleFps
                         + " per non consumare CPU/GPU inutilmente. Torna normale appena riapri Minecraft. "
                         + "Disattivala se registri lo schermo con un programma che cattura anche da finestra non attiva."));
+        y += 36;
+        ctls.add(new ToggleCard(mainX, y, hw, 32, "Modalità PvP", "Mai perdere di vista i nemici",
+                () -> s.pvpMode, v -> { s.pvpMode = v; commit(); })
+                .tip("Quando altri giocatori sono vicini non li taglia mai dal rendering (anche con \"Culling giocatori\" attivo) "
+                        + "e stringe un po' di più mob e particelle lontane, per darti più FPS proprio durante i combattimenti"));
+        ctls.add(new ToggleCard(x2, y, hw, 32, "Animazioni ridotte", "Camera ferma, meno effetti schermo",
+                () -> !o.getBobView().getValue(), v -> {
+                    o.getBobView().setValue(!v);
+                    o.getScreenEffectScale().setValue(v ? 0.0 : 1.0);
+                    o.getDarknessEffectScale().setValue(v ? 0.0 : 1.0);
+                })
+                .tip("Spegne l'oscillazione della camera mentre cammini e le animazioni di nausea/oscurità: meno calcoli, "
+                        + "e in PvP ti dà una mira più stabile"));
         y += 36;
         ctls.add(new BoostInfo(mainX, y, mainW, Math.min(40, contentBottom - y)));
     }
@@ -490,7 +505,8 @@ public class AetherSettingsScreen extends Screen {
                 o.getMaxFps().getValue(), o.getEnableVsync().getValue(), o.getAo().getValue(),
                 o.getEntityShadows().getValue(), o.getParticles().getValue(), o.getCloudRenderMode().getValue(),
                 o.getBiomeBlendRadius().getValue(), o.getEntityDistanceScaling().getValue(), o.getPreset().getValue(),
-                o.getMipmapLevels().getValue());
+                o.getMipmapLevels().getValue(), o.getBobView().getValue(), o.getScreenEffectScale().getValue(),
+                o.getDarknessEffectScale().getValue());
     }
 
     private void restoreVanilla(VanillaSnap v) {
@@ -507,6 +523,9 @@ public class AetherSettingsScreen extends Screen {
         o.getEntityDistanceScaling().setValue(v.entityScale());
         setRaw(o.getPreset(), v.preset());
         o.getMipmapLevels().setValue(v.mipmap());
+        o.getBobView().setValue(v.bobView());
+        o.getScreenEffectScale().setValue(v.screenEffectScale());
+        o.getDarknessEffectScale().setValue(v.darknessEffectScale());
     }
 
     /**
