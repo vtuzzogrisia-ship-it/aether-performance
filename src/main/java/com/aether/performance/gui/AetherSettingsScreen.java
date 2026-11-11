@@ -325,7 +325,7 @@ public class AetherSettingsScreen extends Screen {
         ctls.add(new ToggleCard(x2, y, hw, 32, "Animazioni ridotte", "Camera ferma, meno effetti schermo",
                 () -> !o.getBobView().getValue(), v -> {
                     o.getBobView().setValue(!v);
-                    o.getScreenEffectScale().setValue(v ? 0.0 : 1.0);
+                    o.getDistortionEffectScale().setValue(v ? 0.0 : 1.0);
                     o.getDarknessEffectScale().setValue(v ? 0.0 : 1.0);
                 })
                 .tip("Spegne l'oscillazione della camera mentre cammini e le animazioni di nausea/oscurità: meno calcoli, "
@@ -505,7 +505,7 @@ public class AetherSettingsScreen extends Screen {
                 o.getMaxFps().getValue(), o.getEnableVsync().getValue(), o.getAo().getValue(),
                 o.getEntityShadows().getValue(), o.getParticles().getValue(), o.getCloudRenderMode().getValue(),
                 o.getBiomeBlendRadius().getValue(), o.getEntityDistanceScaling().getValue(), o.getPreset().getValue(),
-                o.getMipmapLevels().getValue(), o.getBobView().getValue(), o.getScreenEffectScale().getValue(),
+                o.getMipmapLevels().getValue(), o.getBobView().getValue(), o.getDistortionEffectScale().getValue(),
                 o.getDarknessEffectScale().getValue());
     }
 
@@ -524,7 +524,7 @@ public class AetherSettingsScreen extends Screen {
         setRaw(o.getPreset(), v.preset());
         o.getMipmapLevels().setValue(v.mipmap());
         o.getBobView().setValue(v.bobView());
-        o.getScreenEffectScale().setValue(v.screenEffectScale());
+        o.getDistortionEffectScale().setValue(v.screenEffectScale());
         o.getDarknessEffectScale().setValue(v.darknessEffectScale());
     }
 
