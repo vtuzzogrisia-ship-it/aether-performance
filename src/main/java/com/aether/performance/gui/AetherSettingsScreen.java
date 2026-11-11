@@ -77,7 +77,8 @@ public class AetherSettingsScreen extends Screen {
     private record Label(String text, int x, int y, int w) { }
 
     private record VanillaSnap(int view, int sim, int fps, boolean vsync, boolean ao, boolean shadows,
-                               Object particles, Object clouds, int biome, double entityScale, Object preset) { }
+                               Object particles, Object clouds, int biome, double entityScale, Object preset,
+                               int mipmap) { }
 
     private static Tab lastTab = Tab.GENERAL;
 
@@ -270,6 +271,15 @@ public class AetherSettingsScreen extends Screen {
                 50, 500, 25, () -> (int) Math.round(o.getEntityDistanceScaling().getValue() * 100),
                 v -> o.getEntityDistanceScaling().setValue(v / 100.0),
                 v -> v + "%", false).tip("Opzione di Minecraft: meno % = meno entità disegnate"));
+        y += 44;
+        ctls.add(new SliderCard(mainX, y, hw, 36, "Livello mipmap", "Nitidezza texture in lontananza",
+                0, 4, 1, () -> o.getMipmapLevels().getValue(), v -> o.getMipmapLevels().setValue(v),
+                v -> v == 0 ? "Spento" : "Livello " + v, false)
+                .tip("Opzione di Minecraft: valori bassi riducono il carico sulla scheda video"));
+        ctls.add(new ToggleCard(x2, y, hw, 36, "Grafica adattiva (Auto)", "Spegne luce/ombre se serve",
+                () -> s.adaptiveGraphics, v -> { s.adaptiveGraphics = v; commit(); })
+                .tip("Solo in profilo Auto: se gli FPS restano molto bassi anche al minimo delle distanze, "
+                        + "spegne per qualche istante luce fluida, ombre e nuvole, e le riaccende da sola appena recuperi FPS"));
         y += 44;
         labels.add(new Label("Queste sono opzioni di Minecraft: restano salvate anche senza la mod.", mainX, y, mainW));
     }
@@ -479,7 +489,8 @@ public class AetherSettingsScreen extends Screen {
         return new VanillaSnap(o.getViewDistance().getValue(), o.getSimulationDistance().getValue(),
                 o.getMaxFps().getValue(), o.getEnableVsync().getValue(), o.getAo().getValue(),
                 o.getEntityShadows().getValue(), o.getParticles().getValue(), o.getCloudRenderMode().getValue(),
-                o.getBiomeBlendRadius().getValue(), o.getEntityDistanceScaling().getValue(), o.getPreset().getValue());
+                o.getBiomeBlendRadius().getValue(), o.getEntityDistanceScaling().getValue(), o.getPreset().getValue(),
+                o.getMipmapLevels().getValue());
     }
 
     private void restoreVanilla(VanillaSnap v) {
@@ -495,6 +506,7 @@ public class AetherSettingsScreen extends Screen {
         o.getBiomeBlendRadius().setValue(v.biome());
         o.getEntityDistanceScaling().setValue(v.entityScale());
         setRaw(o.getPreset(), v.preset());
+        o.getMipmapLevels().setValue(v.mipmap());
     }
 
     /**
@@ -514,6 +526,7 @@ public class AetherSettingsScreen extends Screen {
         String[] graphicsPreset = {"FANCY", "FANCY", "FAST", "FAST"};
         int[] biome = {5, 3, 1, 0};
         double[] entity = {1.0, 1.0, 0.75, 0.5};
+        int[] mipmap = {4, 3, 1, 0};
         PerformanceMode[] modes = {
                 PerformanceMode.BALANCED, PerformanceMode.BALANCED,
                 PerformanceMode.PERFORMANCE, PerformanceMode.EXTREME
@@ -528,6 +541,7 @@ public class AetherSettingsScreen extends Screen {
         setByName(o.getPreset(), graphicsPreset[level]);
         o.getBiomeBlendRadius().setValue(biome[level]);
         o.getEntityDistanceScaling().setValue(entity[level]);
+        o.getMipmapLevels().setValue(mipmap[level]);
 
         // Allinea anche il "cervello" della mod: culling di entità/block entity/particelle
         // alla stessa intensità del preset grafico, cosi le due cose vanno sempre d'accordo.

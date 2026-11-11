@@ -48,6 +48,8 @@ public class ModSettings {
     public boolean idleFpsLimiter = false;
     /** FPS usati quando la finestra non è in primo piano (vedi {@link #idleFpsLimiter}). */
     public int idleFps = 15;
+    /** In modalità AUTO, se gli FPS restano molto bassi spegne temporaneamente luce fluida/ombre/nuvole. */
+    public boolean adaptiveGraphics = false;
 
     // --- Server --------------------------------------------------------------------------
     /** Su un server multigiocatore usa {@link #serverMode} al posto di {@link #mode}. */
@@ -162,6 +164,7 @@ public class ModSettings {
         this.dynamicSimulationDistance = o.dynamicSimulationDistance;
         this.idleFpsLimiter = o.idleFpsLimiter;
         this.idleFps = o.idleFps;
+        this.adaptiveGraphics = o.adaptiveGraphics;
         this.useServerProfile = o.useServerProfile;
         this.serverMode = o.serverMode;
         this.distantPlayerCulling = o.distantPlayerCulling;

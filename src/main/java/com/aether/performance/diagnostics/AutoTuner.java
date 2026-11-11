@@ -31,6 +31,14 @@ public final class AutoTuner {
     /** Distanza di simulazione scelta dall'utente; -1 = nessuna salvata. */
     private static int baseSim = -1;
 
+    // --- Grafica adattiva: spegne temporaneamente luce fluida/ombre/nuvole se gli FPS
+    //     restano molto bassi anche dopo aver stretto le distanze al minimo. ---
+    private static boolean graphicsReduced;
+    private static Boolean baseAo;
+    private static Boolean baseShadows;
+    private static Object baseClouds;
+    private static int graphicsTicks;
+
     private AutoTuner() {
     }
 
@@ -66,12 +74,16 @@ public final class AutoTuner {
         boolean auto = s.effectiveMode() == ModSettings.PerformanceMode.AUTO;
         boolean dynamicView = auto && s.dynamicViewDistance;
         boolean dynamicSim = auto && s.dynamicSimulationDistance;
+        boolean adaptiveGraphics = auto && s.adaptiveGraphics;
 
         if (!dynamicView && baseView >= 0) {
             restoreView(client);
         }
         if (!dynamicSim && baseSim >= 0) {
             restoreSim(client);
+        }
+        if (!adaptiveGraphics && graphicsReduced) {
+            restoreGraphics(client);
         }
         if (!auto || client.world == null) {
             return;
@@ -108,6 +120,74 @@ public final class AutoTuner {
         }
         if (dynamicSim) {
             tuneSimulationDistance(client, s, fps);
+        }
+        if (adaptiveGraphics) {
+            tuneGraphics(client, s, fps);
+        }
+    }
+
+    /**
+     * Se dopo aver stretto le distanze al minimo gli FPS restano molto sotto l'obiettivo per
+     * qualche secondo di fila, spegne temporaneamente luce fluida, ombre delle entità e nuvole
+     * (le opzioni grafiche più pesanti). Le riaccende da sola appena gli FPS tornano a posto.
+     */
+    private static void tuneGraphics(MinecraftClient client, ModSettings s, double fps) {
+        boolean struggling = fps < s.targetFps * 0.75 && RenderingConfig.autoScale <= MIN_SCALE + 0.01;
+        boolean recovered = fps > s.targetFps * 1.15;
+
+        if (struggling && !graphicsReduced) {
+            if (++graphicsTicks < 100) { // ~5 secondi filati in difficoltà prima di intervenire
+                return;
+            }
+            graphicsTicks = 0;
+            var o = client.options;
+            baseAo = o.getAo().getValue();
+            baseShadows = o.getEntityShadows().getValue();
+            baseClouds = o.getCloudRenderMode().getValue();
+            o.getAo().setValue(false);
+            o.getEntityShadows().setValue(false);
+            setByName(o.getCloudRenderMode(), "OFF");
+            graphicsReduced = true;
+        } else if (!struggling) {
+            graphicsTicks = 0;
+            if (graphicsReduced && recovered) {
+                restoreGraphics(client);
+            }
+        }
+    }
+
+    private static void restoreGraphics(MinecraftClient client) {
+        if (!graphicsReduced) {
+            return;
+        }
+        var o = client.options;
+        if (baseAo != null) {
+            o.getAo().setValue(baseAo);
+        }
+        if (baseShadows != null) {
+            o.getEntityShadows().setValue(baseShadows);
+        }
+        if (baseClouds != null) {
+            setRaw(o.getCloudRenderMode(), baseClouds);
+        }
+        client.options.write();
+        graphicsReduced = false;
+        baseAo = null;
+        baseShadows = null;
+        baseClouds = null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E> void setRaw(SimpleOption<E> option, Object value) {
+        option.setValue((E) value);
+    }
+
+    private static <E extends Enum<E>> void setByName(SimpleOption<E> option, String name) {
+        for (E e : option.getValue().getDeclaringClass().getEnumConstants()) {
+            if (e.name().equals(name)) {
+                option.setValue(e);
+                return;
+            }
         }
     }
 
@@ -175,6 +255,9 @@ public final class AutoTuner {
             }
             if (baseSim >= 0) {
                 restoreSim(client);
+            }
+            if (graphicsReduced) {
+                restoreGraphics(client);
             }
         } catch (Throwable t) {
             AetherPerformance.LOGGER.warn("[Aether Performance] Impossibile ripristinare la distanza di rendering alla chiusura.", t);

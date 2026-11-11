@@ -28,6 +28,9 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 - **Distanza di simulazione dinamica**: come sopra ma per la distanza di simulazione (minimo 4): alleggerisce anche mob, coltivazioni e il carico sul server, non solo la grafica; torna al valore scelto da te quando esci o chiudi il gioco.
 - **Preset rapidi allineati**: i 4 pulsanti preset in Generale ora impostano anche la modalita della mod (Bilanciato/Prestazioni/Estremo), cosi grafica e culling vanno sempre d'accordo con un solo clic.
 - **FPS ridotti in background** (disattivata di default): se minimizzi Minecraft o passi a un'altra finestra (browser, Discord...), abbassa il limite FPS a 15 per non consumare CPU/GPU per niente, e lo rimette a posto appena torni sul gioco. Non viene mai salvata su disco: e una modifica solo temporanea. Se registri lo schermo con un programma che cattura anche le finestre non attive, lasciala spenta.
+- **Mod rilevate**: nella scheda Server la mod dice subito se ha trovato altre mod di rendering note (Sodium, Embeddium, Iris, Lithium, EntityCulling, BadOptimizations) e conferma che convivono bene, senza dover guardare i log.
+- **Livello mipmap** (scheda Grafica): opzione vanilla di Minecraft, abbassarla riduce il carico sulla scheda video. E compresa anche nei 4 preset rapidi.
+- **Grafica adattiva** (scheda Grafica, solo profilo Auto, disattivata di default): se dopo aver stretto le distanze al minimo gli FPS restano molto sotto l'obiettivo per qualche secondo filato, spegne temporaneamente luce fluida, ombre delle entita e nuvole, e le riaccende da sola appena recuperi FPS.
 - **Modalita**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `AUTO`, `CUSTOM`.
   - `AUTO` parte dai valori di BALANCED e li restringe/allarga da sola per mantenere gli FPS obiettivo (minimo 35% delle distanze), con una pausa di qualche secondo dopo essere entrati nel mondo e nessuna modifica quando la finestra e in background.
   - `CUSTOM` usa i valori dei cursori.
@@ -45,6 +48,7 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 | `showOverlay`, `overlayGraph`, `showPing` | overlay, grafico dei frame e ping |
 | `targetFps`, `dynamicViewDistance`, `dynamicSimulationDistance` | obiettivo e distanze dinamiche (rendering/simulazione) della modalita AUTO |
 | `idleFpsLimiter`, `idleFps` | limite FPS ridotto quando la finestra non e in primo piano, e a quanto |
+| `adaptiveGraphics` | in modalita AUTO, spegne temporaneamente luce/ombre/nuvole se gli FPS restano molto bassi |
 | `beCullingDistance`, `entityCullingDistance`, `particleDistance`, `particleThinning`, `smallEntityDistance` | valori usati solo con `CUSTOM` |
 
 Preset (blocchi: block entity / entita / particelle / diradamento / oggetti-XP): BALANCED 64/128/48/1/48, PERFORMANCE 48/96/32/2/32, EXTREME 32/64/24/3/24.
@@ -56,8 +60,6 @@ In locale: `gradle build` (Gradle 9.2, Java 21) -> `build/libs/`.
 
 ## Sicurezza anti-crash
 Ogni funzione che tocca il rendering del gioco (culling di entità/block entity/particelle, overlay, modalità Auto, schermata impostazioni) gira dentro un controllo che intercetta eventuali errori: se qualcosa va storto, quella singola funzione si disattiva da sola per il resto della sessione (si vede un avviso in `logs/latest.log`) invece di far crashare Minecraft. Le altre funzioni continuano a funzionare normalmente.
-
-- **Mod rilevate**: nella scheda Server la mod dice subito se ha trovato altre mod di rendering note (Sodium, Embeddium, Iris, Lithium, EntityCulling, BadOptimizations) e conferma che convivono bene, senza dover guardare i log.
 
 ## Rimosso rispetto alla versione originale
 - `VertexBufferPool` + `SectionBuilderMixin`: condividevano il buffer del `Tessellator` tra thread diversi (crash/corruzione) e il metodo `beginBufferBuilding` non esiste.
