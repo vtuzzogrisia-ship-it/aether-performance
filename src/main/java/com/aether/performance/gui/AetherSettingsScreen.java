@@ -362,6 +362,11 @@ public class AetherSettingsScreen extends Screen {
                 () -> s.pvpSprintIndicator, v -> { s.pvpSprintIndicator = v; commit(); })
                 .tip("Una piccola icona a schermo mentre stai sprintando, utile per non perdere lo scatto per sbaglio in un combattimento"));
         y += 44;
+        ctls.add(new SliderCard(mainX, y, mainW, 36, "Dimensione oggetto in mano", "Scala l'oggetto in prima persona",
+                50, 200, 5, () -> s.itemSizePercent, v -> { s.itemSizePercent = v; commit(); },
+                v -> v + "%", false)
+                .tip("Ingrandisce o rimpicciolisce solo il modello dell'oggetto che tieni in mano in prima persona: puro effetto visivo, 100% = normale"));
+        y += 44;
         labels.add(new Label("Niente vantaggi nascosti: nessuna di queste mostra cose che non potresti già vedere tu stesso.",
                 mainX, y, mainW));
     }

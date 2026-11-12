@@ -60,6 +60,8 @@ public class ModSettings {
     public boolean pvpCompactHud = false;
     /** Scritta "SPRINT" mentre corri, per non perderla di vista durante un combattimento. */
     public boolean pvpSprintIndicator = false;
+    /** Dimensione dell'oggetto renderizzato in mano in prima persona, in percentuale (100 = normale). */
+    public int itemSizePercent = 100;
 
     // --- Server --------------------------------------------------------------------------
     /** Su un server multigiocatore usa {@link #serverMode} al posto di {@link #mode}. */
@@ -180,6 +182,7 @@ public class ModSettings {
         this.pvpCombatHud = o.pvpCombatHud;
         this.pvpCompactHud = o.pvpCompactHud;
         this.pvpSprintIndicator = o.pvpSprintIndicator;
+        this.itemSizePercent = o.itemSizePercent;
         this.useServerProfile = o.useServerProfile;
         this.serverMode = o.serverMode;
         this.distantPlayerCulling = o.distantPlayerCulling;
@@ -201,6 +204,7 @@ public class ModSettings {
         playerCullingDistance = clamp(playerCullingDistance, 32, 256);
         targetFps = clamp(targetFps, 20, 360);
         idleFps = clamp(idleFps, 5, 60);
+        itemSizePercent = clamp(itemSizePercent, 50, 200);
     }
 
     /** Sovrascrive le distanze in base al preset scelto (tranne CUSTOM). */

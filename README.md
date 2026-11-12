@@ -39,6 +39,7 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
   - **HUD armatura e pozioni**: durabilità di elmo/corazza/gambali/stivali ed effetti pozione attivi con tempo rimanente, in alto a destra.
   - **FPS e ping compatti**: una piccola scritta in basso a destra, visibile anche senza accendere l'overlay diagnostico completo.
   - **Indicatore sprint**: una scritta "SPRINT" mentre corri, utile per non perderlo di vista durante un combattimento.
+  - **Dimensione oggetto in mano** (slider 50%-200%, come il mod "Item Size" di Lunar/Badlion Client): ingrandisce o rimpicciolisce solo il modello dell'oggetto che tieni in mano in prima persona. Puro effetto visivo (non cambia portata, danno o hitbox), 100% = normale.
 - **Modalita**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `AUTO`, `CUSTOM`.
   - `AUTO` parte dai valori di BALANCED e li restringe/allarga da sola per mantenere gli FPS obiettivo (minimo 35% delle distanze), con una pausa di qualche secondo dopo essere entrati nel mondo e nessuna modifica quando la finestra e in background.
   - `CUSTOM` usa i valori dei cursori.
@@ -59,6 +60,7 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 | `adaptiveGraphics` | in modalita AUTO, spegne temporaneamente luce/ombre/nuvole se gli FPS restano molto bassi |
 | `pvpMode` | non taglia mai i giocatori vicini e stringe mob/particelle quando sei in combattimento |
 | `pvpTntTimer`, `pvpCombatHud`, `pvpCompactHud`, `pvpSprintIndicator` | HUD da combattimento in stile Lunar Client (timer TNT, armatura/pozioni, FPS/ping compatti, indicatore sprint) |
+| `itemSizePercent` | scala (50-200%, 100 = normale) dell'oggetto renderizzato in mano in prima persona |
 | `beCullingDistance`, `entityCullingDistance`, `particleDistance`, `particleThinning`, `smallEntityDistance` | valori usati solo con `CUSTOM` |
 
 Preset (blocchi: block entity / entita / particelle / diradamento / oggetti-XP): BALANCED 64/128/48/1/48, PERFORMANCE 48/96/32/2/32, EXTREME 32/64/24/3/24.
