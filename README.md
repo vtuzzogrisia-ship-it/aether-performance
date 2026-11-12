@@ -7,10 +7,11 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 - **J**: mostra/nasconde l'overlay diagnostico.
 
 ### Schermata impostazioni
-Barra laterale con 6 schede e il selettore del profilo in basso a sinistra:
+Barra laterale con 7 schede e il selettore del profilo in basso a sinistra:
 - **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync + 4 preset rapidi (Qualita / Bilanciato / Prestazioni / Massimi FPS) che ora cambiano **in un solo clic sia la grafica di Minecraft sia la modalita di ottimizzazione della mod** (es. "Massimi FPS" passa anche a culling Estremo e grafica Veloce).
-- **Grafica**: illuminazione fluida, ombre delle entita, particelle, nuvole, fusione dei biomi, distanza entita (tutte opzioni di Minecraft).
+- **Grafica**: illuminazione fluida, ombre delle entita, particelle, nuvole, fusione dei biomi, distanza entita, livello mipmap, grafica adattiva (tutte opzioni di Minecraft o legate ad esse).
 - **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica e distanza di simulazione dinamica (solo profilo Auto), limite FPS ridotto quando la finestra e in background, modalita PvP, animazioni ridotte.
+- **PvP**: HUD da combattimento in stile Lunar Client (timer TNT, armatura/pozioni, FPS/ping compatti, indicatore sprint) — vedi sotto.
 - **Server**: stato del collegamento (nome server, ping), profilo dedicato ai server multigiocatore, culling dei giocatori lontani, ping nell'overlay, quali mod di rendering compatibili (Sodium, Lithium...) sono rilevate.
 - **Distanze**: valori precisi usati dal profilo Personalizzato (block entity, entita, particelle, diradamento, oggetti/XP, FPS obiettivo).
 - **Diagnostica**: FPS, frame time, RAM/GC, ping, oggetti tagliati al secondo e grafico dei frame in tempo reale.
@@ -33,6 +34,11 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 - **Grafica adattiva** (scheda Grafica, solo profilo Auto, disattivata di default): se dopo aver stretto le distanze al minimo gli FPS restano molto sotto l'obiettivo per qualche secondo filato, spegne temporaneamente luce fluida, ombre delle entita e nuvole, e le riaccende da sola appena recuperi FPS.
 - **Modalita PvP** (scheda Boost FPS, disattivata di default): quando rileva altri giocatori entro 24 blocchi, non li taglia mai dal rendering (anche con "Culling giocatori" attivo) e stringe un po' di piu mob e particelle lontane, per darti piu FPS proprio durante i combattimenti. Funziona con qualsiasi profilo, non solo Auto.
 - **Animazioni ridotte** (scheda Boost FPS): spegne l'oscillazione della camera mentre cammini e le animazioni di nausea/oscurita (opzioni vanilla). Meno calcoli e, in PvP, una mira piu stabile.
+- **HUD da combattimento in stile Lunar Client** (scheda PvP, tutto disattivato di default — sono solo informazioni che potresti già vedere tu stesso, mostrate in modo più comodo, nessun vantaggio nascosto rispetto agli altri giocatori):
+  - **Timer TNT**: conto alla rovescia sopra ogni TNT accesa entro 32 blocchi.
+  - **HUD armatura e pozioni**: durabilità di elmo/corazza/gambali/stivali ed effetti pozione attivi con tempo rimanente, in alto a destra.
+  - **FPS e ping compatti**: una piccola scritta in basso a destra, visibile anche senza accendere l'overlay diagnostico completo.
+  - **Indicatore sprint**: una scritta "SPRINT" mentre corri, utile per non perderlo di vista durante un combattimento.
 - **Modalita**: `BALANCED`, `PERFORMANCE`, `EXTREME`, `AUTO`, `CUSTOM`.
   - `AUTO` parte dai valori di BALANCED e li restringe/allarga da sola per mantenere gli FPS obiettivo (minimo 35% delle distanze), con una pausa di qualche secondo dopo essere entrati nel mondo e nessuna modifica quando la finestra e in background.
   - `CUSTOM` usa i valori dei cursori.
@@ -52,6 +58,7 @@ Pulsanti in basso: **Ripristina valori** (valori iniziali della mod), **Annulla*
 | `idleFpsLimiter`, `idleFps` | limite FPS ridotto quando la finestra non e in primo piano, e a quanto |
 | `adaptiveGraphics` | in modalita AUTO, spegne temporaneamente luce/ombre/nuvole se gli FPS restano molto bassi |
 | `pvpMode` | non taglia mai i giocatori vicini e stringe mob/particelle quando sei in combattimento |
+| `pvpTntTimer`, `pvpCombatHud`, `pvpCompactHud`, `pvpSprintIndicator` | HUD da combattimento in stile Lunar Client (timer TNT, armatura/pozioni, FPS/ping compatti, indicatore sprint) |
 | `beCullingDistance`, `entityCullingDistance`, `particleDistance`, `particleThinning`, `smallEntityDistance` | valori usati solo con `CUSTOM` |
 
 Preset (blocchi: block entity / entita / particelle / diradamento / oggetti-XP): BALANCED 64/128/48/1/48, PERFORMANCE 48/96/32/2/32, EXTREME 32/64/24/3/24.

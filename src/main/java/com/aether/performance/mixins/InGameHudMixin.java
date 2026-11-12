@@ -1,7 +1,9 @@
 package com.aether.performance.mixins;
 
 import com.aether.performance.AetherPerformance;
+import com.aether.performance.diagnostics.CombatHud;
 import com.aether.performance.rendering.RenderingConfig;
+import com.aether.performance.settings.ModSettings;
 import com.aether.performance.utils.FailSafe;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -17,21 +19,25 @@ public class InGameHudMixin {
 
     @Inject(method = "render", at = @At("TAIL"), require = 0)
     private void aether$renderOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (FailSafe.isDisabled("overlay")) {
-            return;
-        }
-        try {
-            // La misura dei frame serve sia all'overlay sia alla modalità AUTO
-            if (!RenderingConfig.overlay && !RenderingConfig.auto) {
-                return;
-            }
-            AetherPerformance.monitor().update();
+        boolean hudHidden = MinecraftClient.getInstance().options.hudHidden;
 
-            if (RenderingConfig.overlay && !MinecraftClient.getInstance().options.hudHidden) {
-                AetherPerformance.monitor().renderOverlay(context);
+        if (!FailSafe.isDisabled("overlay")) {
+            try {
+                ModSettings s = AetherPerformance.settings();
+                // La misura dei frame serve all'overlay, alla modalità AUTO e all'HUD compatto PvP
+                if (RenderingConfig.overlay || RenderingConfig.auto || s.pvpCompactHud) {
+                    AetherPerformance.monitor().update();
+                }
+                if (RenderingConfig.overlay && !hudHidden) {
+                    AetherPerformance.monitor().renderOverlay(context);
+                }
+            } catch (Throwable t) {
+                FailSafe.guard("overlay", t);
             }
-        } catch (Throwable t) {
-            FailSafe.guard("overlay", t);
+        }
+
+        if (!hudHidden) {
+            CombatHud.render(context, MinecraftClient.getInstance());
         }
     }
 }

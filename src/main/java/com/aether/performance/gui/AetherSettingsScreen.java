@@ -59,6 +59,7 @@ public class AetherSettingsScreen extends Screen {
         GENERAL("Generale", "Impostazioni generali", "Distanze, limite FPS, V-Sync e preset grafici rapidi."),
         GRAPHICS("Grafica", "Grafica ed effetti", "Bilancia qualità visiva e carico di rendering."),
         BOOST("Boost FPS", "Ottimizzazioni Aether", "Cosa smettere di disegnare per guadagnare FPS."),
+        PVP("PvP", "Mod da combattimento", "HUD e aiuti visivi ispirati a Lunar Client, tutti disattivabili."),
         SERVER("Server", "Giocatore su server", "Impostazioni dedicate al multigiocatore."),
         DISTANCES("Distanze", "Distanze di taglio", "Valori precisi per il profilo Personalizzato."),
         DIAGNOSTICS("Diagnostica", "Diagnostica in tempo reale", "FPS, frame time, memoria, ping e oggetti tagliati.");
@@ -186,6 +187,7 @@ public class AetherSettingsScreen extends Screen {
             case GENERAL -> buildGeneral();
             case GRAPHICS -> buildGraphics();
             case BOOST -> buildBoost();
+            case PVP -> buildPvp();
             case SERVER -> buildServer();
             case DISTANCES -> buildDistances();
             case DIAGNOSTICS -> buildDiagnostics();
@@ -332,6 +334,36 @@ public class AetherSettingsScreen extends Screen {
                         + "e in PvP ti dà una mira più stabile"));
         y += 36;
         ctls.add(new BoostInfo(mainX, y, mainW, Math.min(40, contentBottom - y)));
+    }
+
+    /**
+     * HUD e aiuti visivi da combattimento in stile Lunar Client, tutti disattivabili uno per
+     * uno. Niente che dia un vantaggio nascosto (vedere attraverso i muri, mirare da solo
+     * ecc.): sono le stesse cose che un server con anticheat lascia passare perché non sono
+     * altro che informazioni già tue, mostrate in modo più comodo.
+     */
+    private void buildPvp() {
+        int gap = 6;
+        int hw = (mainW - gap) / 2;
+        int x2 = mainX + hw + gap;
+        int y = contentTop;
+        labels.add(new Label("HUD DA COMBATTIMENTO (disattivabili singolarmente)", mainX, y - 11, mainW));
+        ctls.add(new ToggleCard(mainX, y, hw, 32, "Timer TNT", "Conto alla rovescia sulla TNT accesa",
+                () -> s.pvpTntTimer, v -> { s.pvpTntTimer = v; commit(); })
+                .tip("Mostra a schermo tra quanto esplode la TNT accesa vicino a te: niente che non vedresti già guardandola"));
+        ctls.add(new ToggleCard(x2, y, hw, 32, "HUD armatura e pozioni", "Durabilità ed effetti sempre visibili",
+                () -> s.pvpCombatHud, v -> { s.pvpCombatHud = v; commit(); })
+                .tip("Durabilità dei pezzi di armatura ed effetti pozione attivi, senza dover aprire l'inventario"));
+        y += 36;
+        ctls.add(new ToggleCard(mainX, y, hw, 32, "Ping e FPS compatti", "Numeri sempre in un angolo",
+                () -> s.pvpCompactHud, v -> { s.pvpCompactHud = v; commit(); })
+                .tip("Versione minimale dell'overlay diagnostico: solo ping e FPS, sempre visibili, senza grafico"));
+        ctls.add(new ToggleCard(x2, y, hw, 32, "Indicatore sprint", "Icona quando stai scattando",
+                () -> s.pvpSprintIndicator, v -> { s.pvpSprintIndicator = v; commit(); })
+                .tip("Una piccola icona a schermo mentre stai sprintando, utile per non perdere lo scatto per sbaglio in un combattimento"));
+        y += 44;
+        labels.add(new Label("Niente vantaggi nascosti: nessuna di queste mostra cose che non potresti già vedere tu stesso.",
+                mainX, y, mainW));
     }
 
     private void buildServer() {

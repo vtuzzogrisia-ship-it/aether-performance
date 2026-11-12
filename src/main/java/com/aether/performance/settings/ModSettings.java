@@ -52,6 +52,14 @@ public class ModSettings {
     public boolean adaptiveGraphics = false;
     /** Non taglia mai i giocatori vicini e stringe un po' di più mob/particelle quando sei in combattimento. */
     public boolean pvpMode = false;
+    /** Conto alla rovescia sopra la TNT accesa entro 32 blocchi. */
+    public boolean pvpTntTimer = false;
+    /** HUD con durabilità armatura ed effetti pozione attivi. */
+    public boolean pvpCombatHud = false;
+    /** Versione compatta di FPS/ping, sempre visibile anche senza l'overlay diagnostico. */
+    public boolean pvpCompactHud = false;
+    /** Scritta "SPRINT" mentre corri, per non perderla di vista durante un combattimento. */
+    public boolean pvpSprintIndicator = false;
 
     // --- Server --------------------------------------------------------------------------
     /** Su un server multigiocatore usa {@link #serverMode} al posto di {@link #mode}. */
@@ -168,6 +176,10 @@ public class ModSettings {
         this.idleFps = o.idleFps;
         this.adaptiveGraphics = o.adaptiveGraphics;
         this.pvpMode = o.pvpMode;
+        this.pvpTntTimer = o.pvpTntTimer;
+        this.pvpCombatHud = o.pvpCombatHud;
+        this.pvpCompactHud = o.pvpCompactHud;
+        this.pvpSprintIndicator = o.pvpSprintIndicator;
         this.useServerProfile = o.useServerProfile;
         this.serverMode = o.serverMode;
         this.distantPlayerCulling = o.distantPlayerCulling;
