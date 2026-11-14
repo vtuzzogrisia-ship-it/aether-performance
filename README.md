@@ -7,7 +7,7 @@ Mod client-side di ottimizzazione leggera e sicura. Richiede **Fabric Loader** e
 - **J**: mostra/nasconde l'overlay diagnostico.
 
 ### Schermata impostazioni
-Barra laterale con 7 schede e il selettore del profilo in basso a sinistra:
+Grafica pulita in nero, nessun gradiente, e scorrimento fluido col rotellino del mouse quando il contenuto di una scheda non entra tutto (appare una sottile barra di scorrimento sul bordo destro). Barra laterale con 7 schede e il selettore del profilo in basso a sinistra:
 - **Generale**: distanza di rendering, distanza di simulazione, limite FPS, V-Sync + 4 preset rapidi (Qualita / Bilanciato / Prestazioni / Massimi FPS) che ora cambiano **in un solo clic sia la grafica di Minecraft sia la modalita di ottimizzazione della mod** (es. "Massimi FPS" passa anche a culling Estremo e grafica Veloce).
 - **Grafica**: illuminazione fluida, ombre delle entita, particelle, nuvole, fusione dei biomi, distanza entita, livello mipmap, grafica adattiva (tutte opzioni di Minecraft o legate ad esse).
 - **Boost FPS**: culling di entita / block entity / particelle, oggetti e sfere XP lontani, distanza di rendering dinamica e distanza di simulazione dinamica (solo profilo Auto), limite FPS ridotto quando la finestra e in background, modalita PvP, animazioni ridotte.

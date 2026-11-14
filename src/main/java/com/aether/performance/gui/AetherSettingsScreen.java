@@ -33,12 +33,12 @@ import java.util.function.Supplier;
  */
 public class AetherSettingsScreen extends Screen {
 
-    // --- Palette -------------------------------------------------------------------------
-    private static final int C_DARK = 0xFF0E1016;
-    private static final int C_PANEL = 0xFF151822;
-    private static final int C_CARD2 = 0xFF121520;
-    private static final int C_BORDER = 0xFF282D3B;
-    private static final int C_BORDER_HOT = 0xFF4B5263;
+    // --- Palette: nero pulito, tinte piatte, nessun gradiente -----------------------------
+    private static final int C_DARK = 0xFF060606;
+    private static final int C_PANEL = 0xFF0B0B0B;
+    private static final int C_CARD2 = 0xFF131313;
+    private static final int C_BORDER = 0xFF2A2A2A;
+    private static final int C_BORDER_HOT = 0xFF484848;
     private static final int C_ACCENT = 0xFF3B82F6;
     private static final int C_ACCENT_L = 0xFF60A5FA;
     private static final int C_ACCENT_D = 0xFF2563EB;
@@ -116,6 +116,11 @@ public class AetherSettingsScreen extends Screen {
     private long lastNanos;
     private final long openedAt = System.currentTimeMillis();
 
+    // Scorrimento fluido del contenuto della scheda attiva
+    private double scrollTarget;
+    private double scrollCurrent;
+    private int maxScroll;
+
     private String toastText = "";
     private long toastUntil;
 
@@ -183,6 +188,8 @@ public class AetherSettingsScreen extends Screen {
             ctls.add(new PresetCtl(tabX, presetY, tabW, 44).tip("Clic per cambiare profilo di prestazioni"));
         }
 
+        int contentStart = ctls.size();
+        int labelStart = labels.size();
         switch (tab) {
             case GENERAL -> buildGeneral();
             case GRAPHICS -> buildGraphics();
@@ -192,6 +199,18 @@ public class AetherSettingsScreen extends Screen {
             case DISTANCES -> buildDistances();
             case DIAGNOSTICS -> buildDiagnostics();
         }
+        int maxBottom = contentTop;
+        for (int i = contentStart; i < ctls.size(); i++) {
+            Ctl ct = ctls.get(i);
+            ct.scrollable = true;
+            maxBottom = Math.max(maxBottom, ct.baseY + ct.h);
+        }
+        for (int i = labelStart; i < labels.size(); i++) {
+            maxBottom = Math.max(maxBottom, labels.get(i).y() + 10);
+        }
+        maxScroll = Math.max(0, maxBottom + 4 - contentBottom);
+        scrollTarget = 0;
+        scrollCurrent = 0;
 
         // Footer
         int fy = footerTop + 6;
@@ -679,11 +698,10 @@ public class AetherSettingsScreen extends Screen {
         rr(c, x1 + 1, y1 + 1, x2 - 1, y2 - 1, fill);
     }
 
-    /** Sfondo di una scheda: bordo che si illumina al passaggio del mouse e riflesso in alto. */
+    /** Sfondo piatto di una scheda: bordo che si illumina al passaggio del mouse, nessun riflesso. */
     private static void card(DrawContext c, int x, int y, int w, int h, float hover, float on) {
         rr(c, x, y, x + w, y + h, lerp(C_BORDER, C_ACCENT, hover * 0.6f));
-        rr(c, x + 1, y + 1, x + w - 1, y + h - 1, lerp(C_CARD2, 0xFF171B27, hover));
-        c.fillGradient(x + 2, y + 1, x + w - 2, y + 1 + Math.max(2, h / 2), 0x12FFFFFF, 0x00FFFFFF);
+        rr(c, x + 1, y + 1, x + w - 1, y + h - 1, lerp(C_CARD2, 0xFF1A1A1A, hover));
         if (on > 0.02f) {
             c.fill(x + 1, y + 4, x + 3, y + h - 4, alpha(C_ACCENT_L, (int) (230 * on)));
         }
@@ -814,8 +832,8 @@ public class AetherSettingsScreen extends Screen {
             monitor.update(); // altrimenti i frame li misura già l'HUD
         }
 
-        // Sfondo scurito con puntini luminosi che salgono lentamente
-        c.fillGradient(0, 0, this.width, this.height, 0xC0060910, 0xE0090C14);
+        // Sfondo nero pulito con puntini luminosi che salgono lentamente
+        c.fill(0, 0, this.width, this.height, 0xD0000000);
         drawDots(c);
 
         // Animazione d'ingresso: il pannello scivola in alto in 0,25 secondi
@@ -831,44 +849,83 @@ public class AetherSettingsScreen extends Screen {
         }
         rr(c, px - 1, py - 1, px + pw + 1, py + ph + 1, C_BORDER);
         rr(c, px, py, px + pw, py + ph, C_PANEL);
-        c.fillGradient(px + 1, py + HEADER_H, px + pw - 1, py + ph - 2, 0xFF171B26, 0xFF11141C);
+        c.fill(px + 1, py + HEADER_H, px + pw - 1, py + ph - 2, C_PANEL);
         drawHeader(c, monitor);
 
         // Barra laterale e footer
-        c.fillGradient(px + 1, py + HEADER_H + 1, px + SIDEBAR_W, footerTop, 0xFF131724, 0xFF0F121B);
+        c.fill(px + 1, py + HEADER_H + 1, px + SIDEBAR_W, footerTop, C_DARK);
         c.fill(px + SIDEBAR_W, py + HEADER_H + 1, px + SIDEBAR_W + 1, footerTop, C_BORDER);
-        c.fill(px + 1, footerTop, px + pw - 1, py + ph - 2, 0xFF0C0F15);
+        c.fill(px + 1, footerTop, px + pw - 1, py + ph - 2, C_DARK);
         c.fill(px + 1, footerTop, px + pw - 1, footerTop + 1, C_BORDER);
 
         // Indicatore della scheda attiva (scivola fra le voci)
         int target = tabYs.length > tab.ordinal() ? tabYs[tab.ordinal()] : 0;
         selY = selY < 0 ? target : selY + (target - selY) * Math.min(1f, frameDt * 14f);
         int sy = Math.round(selY);
-        rr(c, tabX, sy, tabX + tabW, sy + tabH, 0xFF2A4170);
-        rr(c, tabX + 1, sy + 1, tabX + tabW - 1, sy + tabH - 1, 0xFF1C2B4C);
-        c.fillGradient(tabX + 2, sy + 1, tabX + tabW - 2, sy + tabH / 2, 0x22FFFFFF, 0x00FFFFFF);
+        rr(c, tabX, sy, tabX + tabW, sy + tabH, C_BORDER_HOT);
+        rr(c, tabX + 1, sy + 1, tabX + tabW - 1, sy + tabH - 1, C_CARD2);
         c.fill(tabX + 1, sy + 4, tabX + 3, sy + tabH - 4, C_ACCENT_L);
 
         // Titolo della scheda
         bold(c, tab.title, mainX, mainY, C_TEXT);
-        c.fillGradient(mainX, mainY + 10, mainX + 28, mainY + 11, C_ACCENT_L, alpha(C_ACCENT_L, 0));
+        c.fill(mainX, mainY + 10, mainX + 28, mainY + 11, C_ACCENT_L);
         c.drawTextWithShadow(this.textRenderer, fit(tab.subtitle, mainW), mainX, mainY + 14, C_MUTED);
 
-        // Intestazioni di sezione
-        for (Label l : labels) {
-            c.drawTextWithShadow(this.textRenderer, fit(l.text(), l.w()), l.x(), l.y(), C_DIM);
+        // Scorrimento fluido verso la posizione richiesta dalla rotellina
+        if (Math.abs(scrollTarget - scrollCurrent) < 0.05) {
+            scrollCurrent = scrollTarget;
+        } else {
+            scrollCurrent += (scrollTarget - scrollCurrent) * Math.min(1.0, frameDt * 16.0);
+        }
+        int scrollPx = (int) Math.round(scrollCurrent);
+        for (Ctl ct : ctls) {
+            if (ct.scrollable) {
+                ct.y = ct.baseY - scrollPx;
+            }
         }
 
-        // Controlli e suggerimento sotto il puntatore
+        // Controlli fissi (barra laterale, footer) disegnati senza ritaglio
         String hint = "";
         for (Ctl ct : ctls) {
+            if (ct.scrollable) {
+                continue;
+            }
             ct.draw(c, mouseX, mouseY);
             if (!ct.hint.isEmpty() && ct.contains(mouseX, mouseY)) {
                 hint = ct.on() ? ct.hint : ct.offHint;
             }
         }
+
+        // Intestazioni di sezione e controlli del contenuto, ritagliati nell'area della scheda
+        c.enableScissor(mainX, contentTop, mainX + mainW, contentBottom);
+        for (Label l : labels) {
+            int ly = l.y() - scrollPx;
+            c.drawTextWithShadow(this.textRenderer, fit(l.text(), l.w()), l.x(), ly, C_DIM);
+        }
+        for (Ctl ct : ctls) {
+            if (!ct.scrollable) {
+                continue;
+            }
+            ct.draw(c, mouseX, mouseY);
+            if (ct.y + ct.h > contentTop && ct.y < contentBottom
+                    && !ct.hint.isEmpty() && ct.contains(mouseX, mouseY)) {
+                hint = ct.on() ? ct.hint : ct.offHint;
+            }
+        }
+        c.disableScissor();
+
+        // Barra di scorrimento, solo se il contenuto non entra tutto
+        if (maxScroll > 0) {
+            int trackH = contentBottom - contentTop;
+            int thumbH = Math.max(16, trackH * trackH / (trackH + maxScroll));
+            int thumbY = contentTop + (int) Math.round((trackH - thumbH) * (scrollCurrent / (double) maxScroll));
+            int barX = mainX + mainW - 3;
+            c.fill(barX, contentTop, barX + 2, contentBottom, C_BORDER);
+            c.fill(barX, thumbY, barX + 2, thumbY + thumbH, C_BORDER_HOT);
+        }
+
         int hintY = footerTop - 11;
-        c.fill(mainX, hintY - 3, mainX + mainW, hintY - 2, 0xFF222736);
+        c.fill(mainX, hintY - 3, mainX + mainW, hintY - 2, C_BORDER);
         c.drawTextWithShadow(this.textRenderer, fit(hint, mainW), mainX, hintY, 0xFF7C8798);
 
         // Notifica
@@ -905,24 +962,13 @@ public class AetherSettingsScreen extends Screen {
     private void drawHeader(DrawContext c, PerformanceMonitor m) {
         int x1 = px + 1;
         int x2 = px + pw - 1;
-        for (int x = x1; x < x2; x += 4) {
-            float t = (x - x1) / (float) (x2 - x1);
-            int col = t < 0.5f ? lerp(0xFF1B2A55, 0xFF161A27, t * 2f) : lerp(0xFF161A27, 0xFF11302F, (t - 0.5f) * 2f);
-            c.fillGradient(x, py + 1, Math.min(x + 4, x2), py + HEADER_H, col, lerp(col, 0xFF11141C, 0.55f));
-        }
-        // Linea d'accento animata in alto
-        double phase = System.currentTimeMillis() / 1400.0;
-        for (int x = x1 + 2; x < x2 - 2; x += 4) {
-            float t = (float) (0.5 + 0.5 * Math.sin((x - x1) / 90.0 + phase));
-            c.fill(x, py, Math.min(x + 4, x2 - 2), py + 2, lerp(C_ACCENT, C_GREEN_L, t));
-        }
+        c.fill(x1, py + 1, x2, py + HEADER_H, C_DARK);
+        // Linea d'accento piatta in alto (nessuna animazione, nessun gradiente)
+        c.fill(x1, py, x2 - 2, py + 2, C_ACCENT);
         c.fill(px + 1, py + HEADER_H, px + pw - 1, py + HEADER_H + 1, C_BORDER);
 
-        // Logo con alone
-        int glow = 20 + (int) (30 * pulse(700));
-        rr(c, px + 8, py + 6, px + 38, py + 32, alpha(C_ACCENT, glow));
-        box(c, px + 10, py + 8, px + 36, py + 30, 0xFF1B2A4A, 0xFF3A5FA8);
-        c.fillGradient(px + 11, py + 9, px + 35, py + 19, 0x30FFFFFF, 0x00FFFFFF);
+        // Logo
+        box(c, px + 10, py + 8, px + 36, py + 30, C_CARD2, C_BORDER_HOT);
         int aw = boldWidth("A");
         bold(c, "A", px + 23 - aw / 2, py + 15, C_ACCENT_L);
 
@@ -932,8 +978,8 @@ public class AetherSettingsScreen extends Screen {
         if (!version.isEmpty()) {
             String v = "v" + version;
             int vw = this.textRenderer.getWidth(v) + 8;
-            box(c, vx, py + 7, vx + vw, py + 18, 0xFF1B2A4A, 0xFF284274);
-            c.drawTextWithShadow(this.textRenderer, v, vx + 4, py + 9, 0xFF93C5FD);
+            box(c, vx, py + 7, vx + vw, py + 18, C_CARD2, C_BORDER_HOT);
+            c.drawTextWithShadow(this.textRenderer, v, vx + 4, py + 9, C_ACCENT_L);
         }
         String sub = "Fabric - Minecraft 1.21.11";
         c.drawTextWithShadow(this.textRenderer, sub, px + 46, py + 21, C_MUTED);
@@ -990,6 +1036,9 @@ public class AetherSettingsScreen extends Screen {
             double my = click.y();
             for (int i = ctls.size() - 1; i >= 0; i--) {
                 Ctl ct = ctls.get(i);
+                if (ct.scrollable && (ct.y + ct.h <= contentTop || ct.y >= contentBottom)) {
+                    continue; // fuori dall'area visibile (scorsa sopra o sotto)
+                }
                 if (ct.contains(mx, my) && ct.on()) {
                     if (ct.click(mx, my)) {
                         active = ct;
@@ -1037,6 +1086,21 @@ public class AetherSettingsScreen extends Screen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        try {
+            if (maxScroll <= 0 || mouseX < mainX || mouseX > mainX + mainW
+                    || mouseY < contentTop || mouseY > contentBottom) {
+                return false;
+            }
+            scrollTarget = Math.max(0, Math.min(maxScroll, scrollTarget - verticalAmount * 18));
+            return true;
+        } catch (Throwable t) {
+            AetherPerformance.LOGGER.error("[Aether Performance] Errore nello scorrimento della schermata impostazioni.", t);
+            return true;
+        }
+    }
+
+    @Override
     public boolean shouldPause() {
         return false;
     }
@@ -1062,6 +1126,10 @@ public class AetherSettingsScreen extends Screen {
         int y;
         int w;
         int h;
+        /** Posizione originale (senza scorrimento): serve per ricalcolare {@link #y} ogni frame. */
+        int baseY;
+        /** true per i controlli del contenuto della scheda, che scorrono con lo scorrimento fluido. */
+        boolean scrollable;
         String hint = "";
         String offHint = "";
         float hov;
@@ -1070,6 +1138,7 @@ public class AetherSettingsScreen extends Screen {
         Ctl(int x, int y, int w, int h) {
             this.x = x;
             this.y = y;
+            this.baseY = y;
             this.w = w;
             this.h = h;
         }
@@ -1145,7 +1214,6 @@ public class AetherSettingsScreen extends Screen {
                 text = lerp(C_MUTED, C_TEXT, t);
             }
             box(c, x, y, x + w, y + h, fill, border);
-            c.fillGradient(x + 2, y + 1, x + w - 2, y + 1 + Math.max(2, h / 2), 0x16FFFFFF, 0x00FFFFFF);
             int tw = AetherSettingsScreen.this.textRenderer.getWidth(label);
             c.drawTextWithShadow(AetherSettingsScreen.this.textRenderer, label, x + (w - tw) / 2, y + (h - 8) / 2, text);
         }
@@ -1666,7 +1734,7 @@ public class AetherSettingsScreen extends Screen {
                 int bx = ax2 - (cols - i) * colW;
                 int top = ay2 - bh;
                 int lineCol = ms > 33.4 ? C_RED : (ms > 16.8 ? C_YELLOW : C_ACCENT_L);
-                c.fillGradient(bx, top, bx + colW, ay2, alpha(lineCol, 120), alpha(lineCol, 8));
+                c.fill(bx, top, bx + colW, ay2, alpha(lineCol, 55));
                 c.fill(bx, top, bx + colW, Math.min(top + 2, ay2), lineCol);
             }
 
